@@ -3,920 +3,516 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>墨韵 · 密码加解密卷轴</title>
-    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Long+Cang&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+    <title>墨韵 · 密码加解密卷轴 (含Markdown)</title>
+    <!-- 字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Long+Cang&family=ZCOOL+XiaoWei&family=Inter&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <!-- Markdown 相关库 -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="hljs-style">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script src="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
     <style>
         :root {
             --paper: #f5efe0;
             --ink: #2c1f14;
             --ink-light: #5a3e2b;
             --vermillion: #b5342e;
-            --vermillion-light: #d4463c;
             --gold: #a67c3c;
-            --gold-light: #c9a44b;
             --jade: #6b8e6b;
             --cream: #faf5eb;
-            --scroll-wood: #8b5e3c;
-            --shadow-ink: rgba(44, 31, 20, 0.2);
+            --shadow-ink: rgba(44,31,20,0.2);
             --font-brush: 'Ma Shan Zheng', 'STKaiti', 'KaiTi', '楷体', serif;
             --font-hand: 'Long Cang', 'STKaiti', 'KaiTi', '楷体', cursive;
             --font-body: 'ZCOOL XiaoWei', 'STSong', 'SimSun', '宋体', serif;
-            --font-mono: 'SF Mono', 'Cascadia Code', 'Consolas', 'Monaco', monospace;
-            --radius-scroll: 4px;
-            --transition-ink: 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+            --transition-ink: 0.3s cubic-bezier(0.25,0.46,0.45,0.94);
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin:0; padding:0; box-sizing:border-box; }
         body {
             font-family: var(--font-body);
             background: #e8dfd2;
             background-image:
                 url("data:image/svg+xml,%3Csvg width='400' height='400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"),
-                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(139, 94, 60, 0.03) 2px, rgba(139, 94, 60, 0.03) 4px),
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(139,94,60,0.03) 2px, rgba(139,94,60,0.03) 4px),
                 linear-gradient(180deg, #f5efe0 0%, #ede4d3 30%, #f3ecdc 60%, #e8dfcf 100%);
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            color: var(--ink);
-            cursor: default;
-            overflow-x: hidden;
-            position: relative;
-        }
-
-        /* 墨韵背景动画 */
-        .ink-wash-layer {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-            overflow: hidden;
-        }
-        .ink-wash-blob {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.06;
-            animation: inkDrift 18s ease-in-out infinite;
-            will-change: transform;
-        }
-        .ink-wash-blob:nth-child(1) { width:350px; height:350px; background:#3a2a1a; top:10%; left:5%; animation-delay:0s; animation-duration:20s; }
-        .ink-wash-blob:nth-child(2) { width:280px; height:280px; background:#5a3a20; top:55%; right:8%; animation-delay:-7s; animation-duration:22s; opacity:0.05; }
-        .ink-wash-blob:nth-child(3) { width:400px; height:400px; background:#2c1f14; bottom:-5%; left:30%; animation-delay:-13s; animation-duration:25s; opacity:0.04; }
-        .ink-wash-blob:nth-child(4) { width:220px; height:220px; background:#4a2a18; top:30%; right:20%; animation-delay:-3s; animation-duration:19s; opacity:0.055; }
-
-        @keyframes inkDrift {
-            0%,100% { transform: translate(0,0) scale(1); }
-            15% { transform: translate(60px,-30px) scale(1.12); }
-            30% { transform: translate(-40px,50px) scale(0.92); }
-            45% { transform: translate(25px,-55px) scale(1.08); }
-            60% { transform: translate(-70px,-20px) scale(0.95); }
-            75% { transform: translate(50px,40px) scale(1.05); }
-            90% { transform: translate(-20px,-60px) scale(0.9); }
-        }
-
-        /* 飘落墨屑 */
-        .falling-inks {
-            position: fixed;
-            top:0; left:0;
-            width:100%; height:100%;
-            pointer-events: none;
-            z-index: 1;
-        }
-        .ink-particle {
-            position: absolute;
-            top: -30px;
-            border-radius: 50%;
-            background: rgba(30,18,8,0.7);
-            animation: inkFall linear forwards;
-        }
-        @keyframes inkFall {
-            0% { transform: translateY(-30px) rotate(0deg) scale(1); opacity:0.75; }
-            60% { opacity:0.5; }
-            100% { transform: translateY(105vh) rotate(720deg) scale(0.3); opacity:0; }
-        }
-
-        /* 涟漪容器 */
-        .ripple-container {
-            position: fixed;
-            top:0; left:0;
-            width:100%; height:100%;
-            pointer-events: none;
-            z-index: 2;
-        }
-        .ripple-ring {
-            position: absolute;
-            border-radius: 50%;
-            border: 1.5px solid rgba(139,94,60,0.5);
-            animation: rippleExpand 1.2s ease-out forwards;
-            pointer-events: none;
-        }
-        @keyframes rippleExpand {
-            0% { width:0; height:0; opacity:0.9; transform:translate(-50%,-50%) scale(0); }
-            100% { width:220px; height:220px; opacity:0; transform:translate(-50%,-50%) scale(1); }
-        }
-
-        /* 墨滴溅射特效（按钮等） */
-        .ink-splash {
-            position: absolute;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(44,31,20,0.8) 0%, rgba(90,62,43,0.4) 40%, transparent 70%);
-            transform: scale(0);
-            pointer-events: none;
-            animation: splashBurst 0.6s ease-out forwards;
-            z-index: 20;
-        }
-        @keyframes splashBurst {
-            0% { transform: scale(0); opacity:1; }
-            100% { transform: scale(4); opacity:0; }
-        }
-
-        /* 主卷轴容器 */
-        .scroll-container {
-            position: relative;
-            z-index: 10;
-            width: 100%;
-            max-width: 920px;
-            background: var(--cream);
-            border-radius: var(--radius-scroll);
-            box-shadow:
-                0 2px 20px var(--shadow-ink),
-                0 8px 50px rgba(44,31,20,0.18),
-                inset 0 0 0 1px rgba(180,160,130,0.3);
-            padding: 30px 30px 24px;
-            display: flex;
-            flex-direction: column;
-            margin: 20px 0;
-            /* 卷轴上下轴杆改为绝对定位装饰 */
-            overflow: visible;
-        }
-        /* 轴杆装饰 - 不再遮挡内容 */
-        .axis-rod {
-            position: absolute;
-            left: -8px;
-            right: -8px;
-            height: 22px;
-            background: linear-gradient(180deg, #7d4e2b, #9b6b45, #7d4e2b);
-            border-radius: 12px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.4);
-            z-index: 0;
-            pointer-events: none;
-        }
-        .axis-rod.top {
-            top: -14px;
-        }
-        .axis-rod.bottom {
-            bottom: -14px;
-        }
-
-        /* 内容区 - 提高z-index以遮盖轴杆 */
-        .scroll-inner {
-            position: relative;
-            z-index: 5;
-            background: inherit;
-            border-radius: 2px;
-        }
-
-        /* 印章装饰 - 提升层级 */
-        .seal-stamp {
-            position: absolute;
-            width: 70px;
-            height: 70px;
-            border: 3px solid var(--vermillion);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--vermillion);
-            font-family: var(--font-brush);
-            font-size: 1.3rem;
-            font-weight: bold;
-            transform: rotate(-12deg);
-            opacity: 0.85;
-            pointer-events: none;
-            z-index: 20;
-            text-shadow: 0 0 4px rgba(181,52,46,0.3);
-            letter-spacing: 2px;
-            box-shadow: inset 0 0 8px rgba(181,52,46,0.2), 0 0 12px rgba(181,52,46,0.15);
-        }
-        .seal-stamp.top-right {
-            top: -35px;
-            right: -15px;
-            width: 65px;
-            height: 65px;
-            font-size: 1.1rem;
-            transform: rotate(10deg);
-            z-index: 25;
-        }
-        .seal-stamp.bottom-left {
-            bottom: -30px;
-            left: -10px;
-            width: 60px;
-            height: 60px;
-            font-size: 0.95rem;
-            transform: rotate(-15deg);
-            z-index: 25;
-        }
-
-        /* 标题栏 */
-        .header-bar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 14px;
-            margin-bottom: 18px;
-            padding-bottom: 14px;
-            border-bottom: 2px dashed rgba(139,94,60,0.3);
-        }
-        .app-title-group { display:flex; align-items:center; gap:10px; }
-        .app-title-icon {
-            width: 44px; height: 44px;
-            background: linear-gradient(135deg, #3a2a1a, #5a3e2b);
-            border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.5rem; color: #f5efe0;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
-            border: 2px solid var(--gold);
-            flex-shrink: 0;
+            padding: 20px; color: var(--ink);
+            overflow-x: hidden; position: relative;
         }
-        .app-title {
-            font-family: var(--font-brush);
-            font-size: 2rem;
-            color: var(--ink);
-            letter-spacing: 0.06em;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-            line-height: 1.1;
-        }
-        .app-subtitle {
-            font-family: var(--font-hand);
-            font-size: 0.85rem;
-            color: var(--ink-light);
-            letter-spacing: 0.04em;
-            margin-top: -2px;
-        }
+        /* 墨韵背景 */
+        .ink-wash-layer{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden;}
+        .ink-wash-blob{position:absolute;border-radius:50%;filter:blur(80px);opacity:0.06;animation:inkDrift 18s ease-in-out infinite;}
+        .ink-wash-blob:nth-child(1){width:350px;height:350px;background:#3a2a1a;top:10%;left:5%;animation-duration:20s;}
+        .ink-wash-blob:nth-child(2){width:280px;height:280px;background:#5a3a20;top:55%;right:8%;animation-delay:-7s;animation-duration:22s;opacity:0.05;}
+        .ink-wash-blob:nth-child(3){width:400px;height:400px;background:#2c1f14;bottom:-5%;left:30%;animation-delay:-13s;animation-duration:25s;opacity:0.04;}
+        .ink-wash-blob:nth-child(4){width:220px;height:220px;background:#4a2a18;top:30%;right:20%;animation-delay:-3s;animation-duration:19s;opacity:0.055;}
+        @keyframes inkDrift{0%,100%{transform:translate(0,0) scale(1);}15%{transform:translate(60px,-30px) scale(1.12);}30%{transform:translate(-40px,50px) scale(0.92);}45%{transform:translate(25px,-55px) scale(1.08);}60%{transform:translate(-70px,-20px) scale(0.95);}75%{transform:translate(50px,40px) scale(1.05);}90%{transform:translate(-20px,-60px) scale(0.9);}}
+        .falling-inks{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;overflow:hidden;}
+        .ink-particle{position:absolute;top:-30px;border-radius:50%;background:rgba(30,18,8,0.7);animation:inkFall linear forwards;}
+        @keyframes inkFall{0%{transform:translateY(-30px) rotate(0deg) scale(1);opacity:0.75;}60%{opacity:0.5;}100%{transform:translateY(105vh) rotate(720deg) scale(0.3);opacity:0;}}
+        .ripple-container{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:2;}
+        .ripple-ring{position:absolute;border-radius:50%;border:1.5px solid rgba(139,94,60,0.5);animation:rippleExpand 1.2s ease-out forwards;pointer-events:none;}
+        @keyframes rippleExpand{0%{width:0;height:0;opacity:0.9;transform:translate(-50%,-50%) scale(0);}100%{width:220px;height:220px;opacity:0;transform:translate(-50%,-50%) scale(1);}}
 
-        /* 登录区 */
-        .login-area { display:flex; align-items:center; gap:10px; flex-shrink:0; }
-        .user-badge {
-            display:flex; align-items:center; gap:8px;
-            background: rgba(245,239,224,0.8);
-            border: 1px solid rgba(139,94,60,0.4);
-            border-radius: 25px; padding: 6px 14px;
-            font-family: var(--font-hand); font-size:1rem;
-            color: var(--ink); cursor:pointer;
-            transition: all var(--transition-ink);
-            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-        }
-        .user-badge:hover {
-            background: rgba(235,220,200,0.9);
-            border-color: var(--gold);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .user-badge .dot { width:9px; height:9px; border-radius:50%; background:var(--jade); flex-shrink:0; }
-        .user-badge .dot.logged-out { background:#c0b8a8; }
+        /* 卷轴 */
+        .scroll-container{position:relative;z-index:10;width:100%;max-width:980px;background:var(--cream);border-radius:4px;box-shadow:0 2px 20px var(--shadow-ink),0 8px 50px rgba(44,31,20,0.18),inset 0 0 0 1px rgba(180,160,130,0.3);padding:28px 30px 24px;margin:20px 0;overflow:visible;}
+        .axis-rod{position:absolute;left:-8px;right:-8px;height:22px;background:linear-gradient(180deg,#7d4e2b,#9b6b45,#7d4e2b);border-radius:12px;box-shadow:0 3px 10px rgba(0,0,0,0.4);z-index:0;pointer-events:none;}
+        .axis-rod.top{top:-14px;}
+        .axis-rod.bottom{bottom:-14px;}
+        .scroll-inner{position:relative;z-index:5;background:inherit;border-radius:2px;}
 
-        .btn-login, .btn-logout {
-            font-family: var(--font-brush); font-size:1rem;
-            padding: 8px 18px; border-radius: 22px;
-            border: 1.5px solid var(--gold);
-            background: linear-gradient(180deg, #faf5eb, #f0e6d5);
-            color: var(--ink-light); cursor:pointer;
-            transition: all var(--transition-ink);
-            letter-spacing: 0.04em; white-space:nowrap;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-            position: relative;
-            overflow: hidden;
-        }
-        .btn-login:hover, .btn-logout:hover {
-            background: linear-gradient(180deg, #fdf8f2, #f5ebdb);
-            border-color: #8b5e3c;
-            color: var(--ink);
-            box-shadow: 0 3px 12px rgba(0,0,0,0.14);
-            transform: translateY(-1px);
-        }
+        .seal-stamp{position:absolute;width:70px;height:70px;border:3px solid var(--vermillion);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--vermillion);font-family:var(--font-brush);font-size:1.3rem;font-weight:bold;transform:rotate(-12deg);opacity:0.85;pointer-events:none;z-index:25;text-shadow:0 0 4px rgba(181,52,46,0.3);letter-spacing:2px;box-shadow:inset 0 0 8px rgba(181,52,46,0.2),0 0 12px rgba(181,52,46,0.15);}
+        .seal-stamp.top-right{top:-35px;right:-15px;width:65px;height:65px;font-size:1.1rem;transform:rotate(10deg);}
+        .seal-stamp.bottom-left{bottom:-30px;left:-10px;width:60px;height:60px;font-size:0.95rem;transform:rotate(-15deg);}
 
-        /* 密钥选择 */
-        .key-select-row {
-            display:flex; align-items:center; gap:10px; flex-wrap:wrap;
-            margin-bottom:14px;
-            font-family: var(--font-hand); font-size:0.95rem;
-            color: var(--ink-light);
-        }
-        .key-select-row select {
-            font-family: var(--font-body); font-size:0.9rem;
-            padding: 8px 30px 8px 12px;
-            border-radius: 20px;
-            border: 1.5px solid rgba(139,94,60,0.4);
-            background: #fdfaf4;
-            color: var(--ink); cursor:pointer;
-            appearance: none;
-            -webkit-appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a3e2b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'%3E%3C/path%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 10px center;
-            transition: all var(--transition-ink);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
+        .header-bar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:18px;padding-bottom:14px;border-bottom:2px dashed rgba(139,94,60,0.3);}
+        .app-title-group{display:flex;align-items:center;gap:10px;}
+        .app-title-icon{width:44px;height:44px;background:linear-gradient(135deg,#3a2a1a,#5a3e2b);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:#f5efe0;box-shadow:0 3px 10px rgba(0,0,0,0.3);border:2px solid var(--gold);}
+        .app-title{font-family:var(--font-brush);font-size:2rem;color:var(--ink);letter-spacing:0.06em;text-shadow:1px 1px 2px rgba(0,0,0,0.1);line-height:1.1;}
+        .app-subtitle{font-family:var(--font-hand);font-size:0.85rem;color:var(--ink-light);letter-spacing:0.04em;margin-top:-2px;}
 
-        /* 卡片区 */
-        .section-card {
-            background: rgba(253,250,244,0.7);
-            border: 1px solid rgba(180,160,130,0.35);
-            border-radius: 8px;
-            padding: 16px 18px;
-            margin-bottom: 12px;
-            position: relative;
-            box-shadow: inset 0 0 30px rgba(200,180,150,0.15);
-            transition: all var(--transition-ink);
-        }
-        .section-label {
-            font-family: var(--font-brush); font-size:1.1rem;
-            color: var(--ink); margin-bottom:8px;
-            letter-spacing: 0.05em;
-            display:flex; align-items:center; gap:8px;
-        }
-        .section-label .dot { width:8px; height:8px; border-radius:50%; display:inline-block; flex-shrink:0; }
-        .dot-input { background: var(--vermillion); box-shadow: 0 0 6px rgba(181,52,46,0.5); }
-        .dot-output { background: var(--jade); box-shadow: 0 0 6px rgba(107,142,107,0.5); }
+        .login-area{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+        .user-badge{display:flex;align-items:center;gap:8px;background:rgba(245,239,224,0.8);border:1px solid rgba(139,94,60,0.4);border-radius:25px;padding:6px 14px;font-family:var(--font-hand);font-size:1rem;color:var(--ink);cursor:pointer;transition:all var(--transition-ink);box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+        .user-badge:hover{background:rgba(235,220,200,0.9);border-color:var(--gold);}
+        .btn-login,.btn-logout{font-family:var(--font-brush);font-size:1rem;padding:8px 18px;border-radius:22px;border:1.5px solid var(--gold);background:linear-gradient(180deg,#faf5eb,#f0e6d5);color:var(--ink-light);cursor:pointer;transition:all var(--transition-ink);letter-spacing:0.04em;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,0.08);}
+        .btn-login:hover,.btn-logout:hover{background:linear-gradient(180deg,#fdf8f2,#f5ebdb);border-color:#8b5e3c;color:var(--ink);}
 
-        textarea {
-            width:100%;
-            border: 1px solid rgba(180,160,130,0.4);
-            border-radius: 6px;
-            padding: 14px 16px;
-            font-family: var(--font-mono); font-size:0.88rem;
-            resize: vertical;
-            min-height: 110px; max-height: 280px;
-            line-height: 1.7;
-            outline: none;
-            background: rgba(255,252,247,0.8);
-            color: var(--ink);
-            transition: all var(--transition-ink);
-            box-shadow: inset 0 1px 4px rgba(0,0,0,0.04);
-        }
-        textarea:focus {
-            border-color: rgba(139,94,60,0.6);
-            box-shadow: inset 0 1px 6px rgba(0,0,0,0.06), 0 0 0 3px rgba(139,94,60,0.05);
-        }
-        textarea#outputArea {
-            background: rgba(248,244,236,0.85);
-            cursor: default;
-            color: #3a2a1a;
-        }
+        .key-select-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;font-family:var(--font-hand);font-size:0.95rem;color:var(--ink-light);}
+        .key-select-row select{font-family:var(--font-body);font-size:0.9rem;padding:8px 30px 8px 12px;border-radius:20px;border:1.5px solid rgba(139,94,60,0.4);background:#fdfaf4;color:var(--ink);cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a3e2b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'%3E%3C/path%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;transition:all var(--transition-ink);box-shadow:0 1px 3px rgba(0,0,0,0.05);}
+        .key-select-row select:hover{border-color:var(--gold);}
 
-        /* 按钮组 */
-        .btn-row {
-            display:flex; flex-wrap:wrap; gap:10px; align-items:center;
-            margin: 6px 0;
-        }
-        button {
-            font-family: var(--font-brush); font-size:1rem;
-            padding: 10px 22px; border-radius: 25px;
-            border: none; cursor:pointer;
-            letter-spacing: 0.05em;
-            transition: all var(--transition-ink);
-            white-space: nowrap;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        button:active { transform: scale(0.95); }
-        button:disabled { opacity:0.5; cursor:not-allowed; pointer-events:none; }
+        .section-card{background:rgba(253,250,244,0.7);border:1px solid rgba(180,160,130,0.35);border-radius:8px;padding:16px 18px;margin-bottom:12px;position:relative;box-shadow:inset 0 0 30px rgba(200,180,150,0.15);transition:all var(--transition-ink);}
+        .section-label{font-family:var(--font-brush);font-size:1.1rem;color:var(--ink);margin-bottom:8px;letter-spacing:0.05em;display:flex;align-items:center;gap:8px;}
+        .dot{width:8px;height:8px;border-radius:50%;display:inline-block;}
+        .dot-input{background:var(--vermillion);box-shadow:0 0 6px rgba(181,52,46,0.5);}
+        .dot-output{background:var(--jade);box-shadow:0 0 6px rgba(107,142,107,0.5);}
 
-        .btn-encrypt {
-            background: linear-gradient(180deg, #d4463c, #b5342e);
-            color: #fdf5e6;
-            box-shadow: 0 3px 14px rgba(181,52,46,0.4);
-            border: 1px solid #a02a24;
-        }
-        .btn-encrypt:hover {
-            background: linear-gradient(180deg, #e0554d, #c43a31);
-            box-shadow: 0 5px 20px rgba(181,52,46,0.5);
-            transform: translateY(-2px);
-        }
-        .btn-decrypt {
-            background: linear-gradient(180deg, #5a8a5a, #4a704a);
-            color: #fdf5e6;
-            box-shadow: 0 3px 14px rgba(74,112,74,0.4);
-            border: 1px solid #3d5c3d;
-        }
-        .btn-decrypt:hover {
-            background: linear-gradient(180deg, #6b9b6b, #558055);
-            box-shadow: 0 5px 20px rgba(74,112,74,0.5);
-            transform: translateY(-2px);
-        }
-        .btn-outline, .btn-copy, .btn-danger {
-            background: rgba(253,250,244,0.8);
-            color: var(--ink-light);
-            border: 1.5px solid rgba(139,94,60,0.5);
-            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-        }
-        .btn-outline:hover, .btn-copy:hover {
-            background: #fdf8f2;
-            border-color: var(--gold);
-            color: var(--ink);
-            box-shadow: 0 3px 12px rgba(0,0,0,0.12);
-            transform: translateY(-1px);
-        }
-        .btn-danger:hover { background:#fef5f5; border-color:#b5342e; color:#6b2020; }
-        .btn-sm { padding:7px 15px; font-size:0.85rem; border-radius:20px; }
+        textarea{width:100%;border:1px solid rgba(180,160,130,0.4);border-radius:6px;padding:14px 16px;font-family:var(--font-mono);font-size:0.88rem;resize:vertical;min-height:110px;max-height:280px;line-height:1.7;outline:none;background:rgba(255,252,247,0.8);color:var(--ink);transition:all var(--transition-ink);box-shadow:inset 0 1px 4px rgba(0,0,0,0.04);}
+        textarea:focus{border-color:rgba(139,94,60,0.6);box-shadow:inset 0 1px 6px rgba(0,0,0,0.06),0 0 0 3px rgba(139,94,60,0.05);}
+        textarea#outputArea{background:rgba(248,244,236,0.85);cursor:default;}
 
-        /* 状态栏 */
-        .status-bar {
-            display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap;
-            gap:8px; padding-top:8px; margin-top:4px;
-            border-top: 1px dashed rgba(139,94,60,0.25);
-            font-family: var(--font-hand); font-size:0.82rem; color: var(--ink-light);
-        }
-        .status-dot { width:7px; height:7px; border-radius:50%; display:inline-block; }
-        .status-dot.idle{background:#c0b8a8;} .status-dot.success{background:#6b8e6b; animation:pulseDot 0.6s ease;}
-        .status-dot.error{background:#c43a31; animation:pulseDot 0.6s ease;}
-        @keyframes pulseDot{ 0%,100%{transform:scale(1);} 50%{transform:scale(2.2);opacity:0.4;} }
+        .btn-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:6px 0;}
+        button{font-family:var(--font-brush);font-size:1rem;padding:10px 22px;border-radius:25px;border:none;cursor:pointer;letter-spacing:0.05em;transition:all var(--transition-ink);white-space:nowrap;position:relative;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+        button:active{transform:scale(0.95);}
+        .btn-encrypt{background:linear-gradient(180deg,#d4463c,#b5342e);color:#fdf5e6;box-shadow:0 3px 14px rgba(181,52,46,0.4);border:1px solid #a02a24;}
+        .btn-encrypt:hover{background:linear-gradient(180deg,#e0554d,#c43a31);transform:translateY(-2px);}
+        .btn-decrypt{background:linear-gradient(180deg,#5a8a5a,#4a704a);color:#fdf5e6;box-shadow:0 3px 14px rgba(74,112,74,0.4);border:1px solid #3d5c3d;}
+        .btn-decrypt:hover{background:linear-gradient(180deg,#6b9b6b,#558055);transform:translateY(-2px);}
+        .btn-outline{background:rgba(253,250,244,0.8);color:var(--ink-light);border:1.5px solid rgba(139,94,60,0.5);}
+        .btn-outline:hover{background:#fdf8f2;border-color:var(--gold);}
+        .btn-sm{padding:7px 15px;font-size:0.85rem;border-radius:20px;}
 
-        /* 登录弹窗 */
-        .modal-overlay {
-            position:fixed; top:0; left:0; width:100%; height:100%;
-            background:rgba(20,12,6,0.6); z-index:100;
-            display:flex; align-items:center; justify-content:center;
-            opacity:0; pointer-events:none;
-            transition: opacity 0.35s ease;
-            backdrop-filter: blur(2px);
-        }
-        .modal-overlay.active { opacity:1; pointer-events:auto; }
-        .modal-dialog {
-            background:var(--cream); border-radius:12px; padding:28px 24px 20px;
-            width:90%; max-width:400px;
-            box-shadow:0 20px 60px rgba(0,0,0,0.35);
-            position:relative; text-align:center;
-            transform: translateY(20px);
-            transition: transform 0.35s ease;
-            border: 1px solid rgba(139,94,60,0.4);
-        }
-        .modal-overlay.active .modal-dialog { transform:translateY(0); }
-        .modal-dialog h3 { font-family:var(--font-brush); font-size:1.6rem; color:var(--ink); margin-bottom:16px; }
-        .modal-dialog input {
-            width:100%; padding:10px 14px; margin:8px 0;
-            border:1.5px solid rgba(139,94,60,0.4); border-radius:20px;
-            font-family:var(--font-body); font-size:0.9rem;
-            background:rgba(255,252,247,0.9); color:var(--ink);
-            outline:none; transition:all var(--transition-ink);
-        }
-        .modal-error { color:var(--vermillion); font-size:0.8rem; margin-top:4px; min-height:18px; font-family:var(--font-hand); }
+        .status-bar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding-top:8px;margin-top:4px;border-top:1px dashed rgba(139,94,60,0.25);font-family:var(--font-hand);font-size:0.82rem;color:var(--ink-light);}
+        .status-dot{width:7px;height:7px;border-radius:50%;display:inline-block;}
+        .status-dot.idle{background:#c0b8a8;}.status-dot.success{background:#6b8e6b;animation:pulseDot 0.6s ease;}.status-dot.error{background:#c43a31;animation:pulseDot 0.6s ease;}
+        @keyframes pulseDot{0%,100%{transform:scale(1);}50%{transform:scale(2.2);opacity:0.4;}}
 
-        .toast {
-            position:fixed; top:20px; left:50%; transform:translateX(-50%);
-            background:#2c1f14; color:#f5efe0;
-            padding:10px 24px; border-radius:25px;
-            font-family:var(--font-hand); font-size:0.9rem;
-            z-index:200; opacity:0; pointer-events:none;
-            transition: all 0.35s ease;
-            box-shadow:0 6px 24px rgba(0,0,0,0.3);
-            border:1px solid rgba(166,124,60,0.5);
-        }
-        .toast.show { opacity:1; transform:translateX(-50%) translateY(6px); }
-        .toast.warn { background:#5c3a1e; border-color:#a67c3c; }
-        .toast.err { background:#4a1a14; border-color:#c43a31; }
+        /* 登录弹窗 (修复层级) */
+        .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(20,12,6,0.65);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.35s ease;backdrop-filter:blur(2px);}
+        .modal-overlay.active{opacity:1;pointer-events:auto;}
+        .modal-dialog{background:var(--cream);border-radius:12px;padding:28px 24px 20px;width:90%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,0.4);position:relative;text-align:center;transform:translateY(20px);transition:transform 0.35s ease;border:1px solid rgba(139,94,60,0.4);}
+        .modal-overlay.active .modal-dialog{transform:translateY(0);}
+        .modal-dialog h3{font-family:var(--font-brush);font-size:1.6rem;color:var(--ink);margin-bottom:16px;}
+        .modal-dialog input{width:100%;padding:10px 14px;margin:8px 0;border:1.5px solid rgba(139,94,60,0.4);border-radius:20px;font-family:var(--font-body);font-size:0.9rem;background:rgba(255,252,247,0.9);color:var(--ink);outline:none;}
+        .modal-error{color:var(--vermillion);font-size:0.8rem;margin-top:4px;min-height:18px;font-family:var(--font-hand);}
+        .btn-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--ink-light);}
 
-        @media (max-width:700px) {
-            .scroll-container { padding:20px 12px 16px; }
-            .axis-rod { left:-6px; right:-6px; height:16px; border-radius:8px; }
-            .axis-rod.top { top:-10px; } .axis-rod.bottom { bottom:-10px; }
-            .app-title { font-size:1.4rem; }
-            .app-title-icon { width:34px; height:34px; font-size:1.2rem; }
-            button { padding:8px 16px; font-size:0.85rem; }
-            textarea { min-height:85px; font-size:0.8rem; }
-            .seal-stamp { width:45px; height:45px; font-size:0.75rem; }
-            .seal-stamp.top-right { top:-25px; right:-8px; width:45px; height:45px; }
-            .seal-stamp.bottom-left { bottom:-25px; left:-5px; width:40px; height:40px; }
+        /* Markdown 编辑器面板 */
+        .md-panel-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(20,12,6,0.7);z-index:900;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.4s ease;backdrop-filter:blur(3px);}
+        .md-panel-overlay.active{opacity:1;pointer-events:auto;}
+        .md-panel{background:#fff;border-radius:16px;width:95%;max-width:1100px;height:85vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.5);position:relative;}
+        .md-panel-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #eef2f6;background:#fafbfc;}
+        .md-panel-header h2{font-family:var(--font-brush);font-size:1.4rem;color:var(--ink);}
+        .md-panel-body{display:flex;flex:1;overflow:hidden;}
+        .md-editor,.md-preview{flex:1;overflow-y:auto;padding:20px;}
+        .md-editor{border-right:1px solid #eef2f6;}
+        .md-editor textarea{width:100%;height:100%;border:none;resize:none;font-family:var(--font-mono);font-size:14px;line-height:1.8;background:transparent;color:#1e293b;outline:none;}
+        .md-preview{background:#fafcff;}
+        .md-preview-content{max-width:100%;word-wrap:break-word;}
+        /* 复用预览样式 (简化) */
+        .md-preview-content h1,.md-preview-content h2{border-bottom:1px solid #eef2f6;padding-bottom:0.2em;}
+        .md-preview-content pre{background:#0f172a;border-radius:10px;padding:16px;overflow-x:auto;}
+        .md-preview-content pre code{color:#e2e8f0;font-size:13px;}
+        .md-panel-footer{padding:12px 20px;border-top:1px solid #eef2f6;display:flex;gap:10px;justify-content:flex-end;background:#fafbfc;}
+        .btn-md-action{font-family:var(--font-brush);padding:8px 18px;border-radius:20px;border:1.5px solid #dce1e8;background:#fff;color:#333;cursor:pointer;transition:all 0.2s;}
+        .btn-md-action:hover{background:#f1f4f9;border-color:#bcc5d0;}
+
+        .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#2c1f14;color:#f5efe0;padding:10px 24px;border-radius:25px;font-family:var(--font-hand);font-size:0.9rem;z-index:2000;opacity:0;pointer-events:none;transition:all 0.35s ease;box-shadow:0 6px 24px rgba(0,0,0,0.3);border:1px solid rgba(166,124,60,0.5);}
+        .toast.show{opacity:1;transform:translateX(-50%) translateY(6px);}
+        .toast.warn{background:#5c3a1e;border-color:#a67c3c;}
+        .toast.err{background:#4a1a14;border-color:#c43a31;}
+
+        @media(max-width:700px){
+            .scroll-container{padding:20px 12px 16px;}
+            .axis-rod{left:-6px;right:-6px;height:16px;border-radius:8px;}
+            .axis-rod.top{top:-10px;}.axis-rod.bottom{bottom:-10px;}
+            .app-title{font-size:1.4rem;}
+            .md-panel{height:95vh;}
+            .md-panel-body{flex-direction:column;}
+            .md-editor{border-right:none;border-bottom:1px solid #eef2f6;height:50%;}
+            .md-preview{height:50%;}
         }
     </style>
 </head>
 <body>
-    <!-- 背景墨韵 -->
-    <div class="ink-wash-layer">
-        <div class="ink-wash-blob"></div>
-        <div class="ink-wash-blob"></div>
-        <div class="ink-wash-blob"></div>
-        <div class="ink-wash-blob"></div>
-    </div>
-    <div class="falling-inks" id="fallingInks"></div>
-    <div class="ripple-container" id="rippleContainer"></div>
+<div class="ink-wash-layer"><div class="ink-wash-blob"></div><div class="ink-wash-blob"></div><div class="ink-wash-blob"></div><div class="ink-wash-blob"></div></div>
+<div class="falling-inks" id="fallingInks"></div>
+<div class="ripple-container" id="rippleContainer"></div>
 
-    <!-- 卷轴主体 -->
-    <div class="scroll-container" id="scrollContainer">
-        <div class="axis-rod top"></div>
-        <div class="axis-rod bottom"></div>
-        <div class="scroll-inner">
-            <div class="seal-stamp top-right">加密</div>
-            <div class="seal-stamp bottom-left">解密</div>
-
-            <div class="header-bar">
-                <div class="app-title-group">
-                    <div class="app-title-icon">🔐</div>
-                    <div>
-                        <div class="app-title">墨韵·密码卷轴</div>
-                        <div class="app-subtitle">— 五层古法加密 · AES-GCM 护佑 —</div>
-                    </div>
-                </div>
-                <div class="login-area">
-                    <span id="userBadge" class="user-badge" style="display:none;">
-                        <span class="dot logged-out" id="userDot"></span>
-                        <span id="userNameDisplay"></span>
-                    </span>
-                    <button class="btn-login" id="btnLogin">🔑 登 录</button>
-                    <button class="btn-logout btn-sm" id="btnLogout" style="display:none;">🚪 登 出</button>
-                </div>
-            </div>
-
-            <div class="key-select-row">
-                <label for="keyLevel">🔑 密钥强度：</label>
-                <select id="keyLevel">
-                    <option value="none">不用秘钥：极短</option>
-                    <option value="low">低级秘钥：短 (AES-128)</option>
-                    <option value="mid">中级秘钥：长 (AES-192)</option>
-                    <option value="high" selected>超级秘钥：超长 (AES-256)</option>
-                </select>
-                <span id="keyWarning" style="color:var(--vermillion);font-size:0.8rem;display:none;">您的浏览器可能不支持AES-192</span>
-            </div>
-
-            <div class="section-card">
-                <div class="section-label"><span class="dot dot-input"></span> 落 墨 · 输 入</div>
-                <textarea id="inputArea" placeholder="在此挥毫泼墨，写下需加密或解密的文辞…&#10;兼容中英文字、数字、符号等万般字符"></textarea>
-                <div class="btn-row file-btns">
-                    <button class="btn-outline btn-sm" id="btnImport">📜 导入TXT</button>
-                    <button class="btn-outline btn-sm" id="btnExport">💾 导出输出</button>
-                    <span style="flex:1;"></span>
-                    <span id="charCount" style="font-family:var(--font-hand);font-size:0.8rem;">字数: 0</span>
-                </div>
-            </div>
-
-            <div class="btn-row" style="justify-content:center;gap:14px;">
-                <button class="btn-encrypt" id="btnEncrypt">🔒 加 密</button>
-                <button class="btn-decrypt" id="btnDecrypt">🔓 解 密</button>
-                <button class="btn-outline btn-sm" id="btnClear">🗑 清 空</button>
-                <button class="btn-copy btn-sm" id="btnCopy">📋 复制结果</button>
-            </div>
-
-            <div class="section-card">
-                <div class="section-label"><span class="dot dot-output"></span> 回 响 · 输 出</div>
-                <textarea id="outputArea" placeholder="加密或解密之果将显现于此…" readonly></textarea>
-            </div>
-
-            <div class="status-bar">
-                <span><span class="status-dot idle" id="statusDot"></span> <span id="statusText">静候墨韵</span></span>
-                <span id="timeDisplay"></span>
+<div class="scroll-container" id="scrollContainer">
+    <div class="axis-rod top"></div><div class="axis-rod bottom"></div>
+    <div class="scroll-inner">
+        <div class="seal-stamp top-right">加密</div><div class="seal-stamp bottom-left">解密</div>
+        <div class="header-bar">
+            <div class="app-title-group"><div class="app-title-icon">🔐</div><div><div class="app-title">墨韵·密码卷轴</div><div class="app-subtitle">— 五层古法 · AES-GCM · Markdown —</div></div></div>
+            <div class="login-area">
+                <span id="userBadge" class="user-badge" style="display:none;"><span class="dot" id="userDot"></span><span id="userNameDisplay"></span></span>
+                <button class="btn-login" id="btnLogin">🔑 登 录</button>
+                <button class="btn-logout btn-sm" id="btnLogout" style="display:none;">🚪 登 出</button>
             </div>
         </div>
-    </div>
-
-    <!-- 登录弹窗 -->
-    <div class="modal-overlay" id="loginModal">
-        <div class="modal-dialog">
-            <button class="btn-modal-close" id="btnModalClose" style="position:absolute;top:10px;right:14px;background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--ink-light);">✕</button>
-            <h3>🏮 墨韵书阁 · 登录</h3>
-            <input type="text" id="loginUsername" placeholder="用户名" autocomplete="username">
-            <input type="password" id="loginPassword" placeholder="密码" autocomplete="current-password">
-            <div class="modal-error" id="loginError"></div>
-            <div class="btn-row" style="justify-content:center;gap:12px;margin-top:10px;">
-                <button class="btn-encrypt btn-sm" id="btnLoginSubmit">登 入</button>
-                <button class="btn-outline btn-sm" id="btnChangePwd" style="display:none;">修改密码</button>
-            </div>
-            <div id="changePwdArea" style="display:none;margin-top:12px;">
-                <input type="password" id="oldPassword" placeholder="旧密码">
-                <input type="password" id="newPassword" placeholder="新密码（至少6位）">
-                <div class="modal-error" id="pwdError"></div>
-                <button class="btn-encrypt btn-sm" id="btnPwdSubmit" style="margin-top:6px;">确认修改</button>
+        <div class="key-select-row">
+            <label>🔑 密钥强度：</label>
+            <select id="keyLevel">
+                <option value="none">不用秘钥：极短</option>
+                <option value="low">低级秘钥：短 (AES-128)</option>
+                <option value="mid">中级秘钥：长 (AES-192)</option>
+                <option value="high" selected>超级秘钥：超长 (AES-256)</option>
+            </select>
+            <span id="keyWarning" style="color:var(--vermillion);font-size:0.8rem;display:none;">⚠️ 浏览器可能不支持AES-192</span>
+        </div>
+        <div class="section-card">
+            <div class="section-label"><span class="dot dot-input"></span> 落 墨 · 输 入</div>
+            <textarea id="inputArea" placeholder="在此挥毫落墨，写入需加密或解密的文辞…"></textarea>
+            <div class="btn-row file-btns">
+                <button class="btn-outline btn-sm" id="btnImport">📜 导入TXT</button>
+                <button class="btn-outline btn-sm" id="btnExport">💾 导出输出</button>
+                <button class="btn-outline btn-sm" id="btnMdEditor">🖊️ Markdown 编辑</button>
+                <span style="flex:1;"></span><span id="charCount" style="font-family:var(--font-hand);font-size:0.8rem;">字数: 0</span>
             </div>
         </div>
+        <div class="btn-row" style="justify-content:center;gap:14px;">
+            <button class="btn-encrypt" id="btnEncrypt">🔒 加 密</button>
+            <button class="btn-decrypt" id="btnDecrypt">🔓 解 密</button>
+            <button class="btn-outline btn-sm" id="btnClear">🗑 清 空</button>
+            <button class="btn-outline btn-sm" id="btnCopy">📋 复制结果</button>
+        </div>
+        <div class="section-card">
+            <div class="section-label"><span class="dot dot-output"></span> 回 响 · 输 出</div>
+            <textarea id="outputArea" placeholder="加密或解密之果将显现于此…" readonly></textarea>
+        </div>
+        <div class="status-bar">
+            <span><span class="status-dot idle" id="statusDot"></span> <span id="statusText">静候墨韵</span></span>
+            <span id="timeDisplay"></span>
+        </div>
     </div>
+</div>
 
-    <div class="toast" id="toast"></div>
-    <input type="file" id="fileInput" accept=".txt" style="display:none;">
+<!-- 登录弹窗 -->
+<div class="modal-overlay" id="loginModal">
+    <div class="modal-dialog">
+        <button class="btn-modal-close" id="btnModalClose">✕</button>
+        <h3>🏮 墨韵书阁 · 登录</h3>
+        <input type="text" id="loginUsername" placeholder="用户名" autocomplete="username">
+        <input type="password" id="loginPassword" placeholder="密码" autocomplete="current-password">
+        <div class="modal-error" id="loginError"></div>
+        <div class="btn-row" style="justify-content:center;gap:10px;margin-top:12px;">
+            <button class="btn-encrypt btn-sm" id="btnLoginSubmit">登 入</button>
+            <button class="btn-outline btn-sm" id="btnChangePwd" style="display:none;">修改密码</button>
+        </div>
+        <div id="changePwdArea" style="display:none;margin-top:12px;">
+            <input type="password" id="oldPassword" placeholder="旧密码">
+            <input type="password" id="newPassword" placeholder="新密码(至少6位)">
+            <div class="modal-error" id="pwdError"></div>
+            <button class="btn-encrypt btn-sm" id="btnPwdSubmit">确认修改</button>
+        </div>
+    </div>
+</div>
 
-    <script>
-        (function() {
-            const API_BASE = 'https://myzlm.serveousercontent.com';
+<!-- Markdown 编辑器面板 -->
+<div class="md-panel-overlay" id="mdPanelOverlay">
+    <div class="md-panel">
+        <div class="md-panel-header">
+            <h2>🖊️ Markdown 编辑 · 预览</h2>
+            <button class="btn-md-action" id="btnMdClose">✕ 关闭</button>
+        </div>
+        <div class="md-panel-body">
+            <div class="md-editor">
+                <textarea id="mdEditorArea" placeholder="在此书写 Markdown..."></textarea>
+            </div>
+            <div class="md-preview">
+                <div class="md-preview-content" id="mdPreview"></div>
+            </div>
+        </div>
+        <div class="md-panel-footer">
+            <button class="btn-md-action" id="btnMdImport">📥 导入到加密输入</button>
+            <button class="btn-encrypt btn-sm" id="btnMdEncrypt">🔒 直接加密此 Markdown</button>
+        </div>
+    </div>
+</div>
 
-            // DOM元素
-            const inputArea = document.getElementById('inputArea');
-            const outputArea = document.getElementById('outputArea');
-            const keyLevelSelect = document.getElementById('keyLevel');
-            const keyWarning = document.getElementById('keyWarning');
-            const btnEncrypt = document.getElementById('btnEncrypt');
-            const btnDecrypt = document.getElementById('btnDecrypt');
-            const btnClear = document.getElementById('btnClear');
-            const btnCopy = document.getElementById('btnCopy');
-            const btnImport = document.getElementById('btnImport');
-            const btnExport = document.getElementById('btnExport');
-            const fileInput = document.getElementById('fileInput');
-            const charCount = document.getElementById('charCount');
-            const statusDot = document.getElementById('statusDot');
-            const statusText = document.getElementById('statusText');
-            const timeDisplay = document.getElementById('timeDisplay');
-            const toast = document.getElementById('toast');
-            const rippleContainer = document.getElementById('rippleContainer');
-            const fallingInks = document.getElementById('fallingInks');
+<div class="toast" id="toast"></div>
+<input type="file" id="fileInput" accept=".txt" style="display:none;">
 
-            const btnLogin = document.getElementById('btnLogin');
-            const btnLogout = document.getElementById('btnLogout');
-            const userBadge = document.getElementById('userBadge');
-            const userDot = document.getElementById('userDot');
-            const userNameDisplay = document.getElementById('userNameDisplay');
-            const loginModal = document.getElementById('loginModal');
-            const btnModalClose = document.getElementById('btnModalClose');
-            const loginUsername = document.getElementById('loginUsername');
-            const loginPassword = document.getElementById('loginPassword');
-            const loginError = document.getElementById('loginError');
-            const btnLoginSubmit = document.getElementById('btnLoginSubmit');
-            const btnChangePwd = document.getElementById('btnChangePwd');
-            const changePwdArea = document.getElementById('changePwdArea');
-            const oldPassword = document.getElementById('oldPassword');
-            const newPassword = document.getElementById('newPassword');
-            const pwdError = document.getElementById('pwdError');
-            const btnPwdSubmit = document.getElementById('btnPwdSubmit');
+<script>
+(function() {
+    const API_BASE = 'https://myzlm.serveousercontent.com';
+    // DOM 元素
+    const inputArea = document.getElementById('inputArea');
+    const outputArea = document.getElementById('outputArea');
+    const keyLevelSelect = document.getElementById('keyLevel');
+    const keyWarning = document.getElementById('keyWarning');
+    const btnEncrypt = document.getElementById('btnEncrypt');
+    const btnDecrypt = document.getElementById('btnDecrypt');
+    const btnClear = document.getElementById('btnClear');
+    const btnCopy = document.getElementById('btnCopy');
+    const btnImport = document.getElementById('btnImport');
+    const btnExport = document.getElementById('btnExport');
+    const btnMdEditor = document.getElementById('btnMdEditor');
+    const fileInput = document.getElementById('fileInput');
+    const charCount = document.getElementById('charCount');
+    const statusDot = document.getElementById('statusDot');
+    const statusText = document.getElementById('statusText');
+    const timeDisplay = document.getElementById('timeDisplay');
+    const toast = document.getElementById('toast');
+    const rippleContainer = document.getElementById('rippleContainer');
+    const fallingInks = document.getElementById('fallingInks');
 
-            let currentUser = null;
-            let isChangePwdMode = false;
+    // 登录
+    const btnLogin = document.getElementById('btnLogin');
+    const btnLogout = document.getElementById('btnLogout');
+    const userBadge = document.getElementById('userBadge');
+    const userDot = document.getElementById('userDot');
+    const userNameDisplay = document.getElementById('userNameDisplay');
+    const loginModal = document.getElementById('loginModal');
+    const btnModalClose = document.getElementById('btnModalClose');
+    const loginUsername = document.getElementById('loginUsername');
+    const loginPassword = document.getElementById('loginPassword');
+    const loginError = document.getElementById('loginError');
+    const btnLoginSubmit = document.getElementById('btnLoginSubmit');
+    const btnChangePwd = document.getElementById('btnChangePwd');
+    const changePwdArea = document.getElementById('changePwdArea');
+    const oldPassword = document.getElementById('oldPassword');
+    const newPassword = document.getElementById('newPassword');
+    const pwdError = document.getElementById('pwdError');
+    const btnPwdSubmit = document.getElementById('btnPwdSubmit');
 
-            // 密码表...
-            const ms_encrypt = { ' ': "*-***", '1': "*----", '2': "**---", '3': "***--", '4': "****-", '5': "*****", '6': "-****", '7': "--***", '8': "---**", '9': "----*", '0': "-----", '￥': "--**-", '\n': "-*--*", '-': "-*---" };
-            const jw_encrypt = { ' ': "  ", 'a': "21", 'b': "22", 'c': "23", 'd': "31", 'e': "32", 'f': "33", 'g': "41", 'h': "42", 'i': "43", 'j': "51", 'k': "52", 'l': "53", 'm': "61", 'n': "62", 'o': "63", 'p': "71", 'q': "72", 'r': "73", 's': "74", 't': "81", 'u': "82", 'v': "83", 'w': "91", 'x': "92", 'y': "93", 'z': "94", '1': "11", '2': "12", '3': "13", '4': "14", '5': "15", '6': "16", '7': "17", '8': "18", '9': "19", '0': "10", ',': "95", '.': "96", '?': "97", '!': "98", '\'': "00", '\"': "01", '+': "02", '-': "04", '*': "05", '/': "06", '=': "07", '(': "08", ')': "09", "@": "99", '%': "84", ':': "85", ';': "86", '<': "87", '>': "88", '#': "89", '$': "75", '^': "76", '&': "77", '`': "78", '~': "79", '[': "64", ']': "65", '{': "66", '}': "67", '|': "68", '_': "69", '\\': "54", '￥': "03", '\n': "0 ", '【': "20", '】': "30", '；': "40", '：': "50", '‘': "60", '“': "70", '、': "80", '，': "90", '。': "0-", '？': "1-", '《': "2-", '》': "3-", '·': "4-", '（': "5-", '）': "6-", '！': '7-', '…': '8-' };
-            const dn_encrypt = { ' ': ' ', 'q': 'a', 'w': 'b', 'e': 'c', 'r': 'd', 't': 'e', 'y': 'f', 'u': 'g', 'i': 'h', 'o': 'i', 'p': 'j', 'a': 'k', 's': 'l', 'd': 'm', 'f': 'n', 'g': 'o', 'h': 'p', 'j': 'q', 'k': 'r', 'l': 's', 'z': 't', 'x': 'u', 'c': 'v', 'v': 'w', 'b': 'x', 'n': 'y', 'm': 'z', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6', '7': '7', '8': '8', '9': '9', '0': '0', ',': ',', '.': '.', '?': '?', '!': '!', '\'': '\'', '\"': '\"', '+': '+', '-': '-', '*': '*', '/': '/', '=': '=', '(': '(', ')': ')', '@': '@', '%': '%', ':': ':', ';': ';', '<': '<', '>': '>', '#': '#', '$': '$', '^': '^', '&': '&', '`': '`', '~': '~', '[': '[', ']': ']', '{': '{', '}': '}', '|': '|', '_': '_', '\\': '\\', '￥': '￥', '\n': '\n', '【': '】', '】': '】', '；': '；', '：': '：', '’': '‘', '”': '“', '、': '、', '，': '，', '。': '。', '？': '？', '《': '《', '》': '》', '·': '·', '（': '（', '）': '）', '！': '！', '…': '…' };
-            const ms_decrypt = {}; for (const [k,v] of Object.entries(ms_encrypt)) ms_decrypt[v]=k;
-            const jw_decrypt = {}; for (const [k,v] of Object.entries(jw_encrypt)) jw_decrypt[v]=k;
-            const dn_decrypt = {}; for (const [k,v] of Object.entries(dn_encrypt)) dn_decrypt[v]=k;
+    // Markdown 面板
+    const mdPanelOverlay = document.getElementById('mdPanelOverlay');
+    const mdEditorArea = document.getElementById('mdEditorArea');
+    const mdPreview = document.getElementById('mdPreview');
+    const btnMdClose = document.getElementById('btnMdClose');
+    const btnMdImport = document.getElementById('btnMdImport');
+    const btnMdEncrypt = document.getElementById('btnMdEncrypt');
 
-            // 紧凑编码
-            function numberToLetterChar(n) { if(n>=1&&n<=9) return String.fromCharCode(64+n); if(n===0) return 'J'; throw new Error('映射错误'); }
-            function letterToNumber(c) { if(c>='A'&&c<='I') return c.charCodeAt(0)-64; if(c==='J') return 0; throw new Error('无效字母'); }
-            function compactEncode(symbols) { const r=[]; for(const [s,c] of symbols) { const d=String(c); r.push(s==='*'?d:d.split('').map(x=>numberToLetterChar(parseInt(x))).join('')); } return r.join(''); }
-            function compactDecode(str) { const syms=[]; let i=0; while(i<str.length) { const c=str[i]; if(c>='0'&&c<='9'){ const b=[]; while(i<str.length&&str[i]>='0'&&str[i]<='9') b.push(str[i++]); syms.push(['*',parseInt(b.join(''),10)]); } else if(c>='A'&&c<='J'){ const b=[]; while(i<str.length&&str[i]>='A'&&str[i]<='J') b.push(letterToNumber(str[i++])); syms.push(['-',parseInt(b.join(''),10)]); } else throw new Error('非法字符'); } return syms; }
-            function symbolsToContinuous(syms) { return syms.map(([s,c])=>s.repeat(c)).join(''); }
-            function splitContinuousMorse(cont, map) { const u=[]; let i=0; while(i<cont.length){ let m=null; for(let l=5;l>=1;l--){ if(i+l>cont.length) continue; const sub=cont.substring(i,i+l); if(sub in map){ m=sub; break; } } if(!m) throw new Error('无法分割'); u.push(m); i+=m.length; } return u; }
+    let currentUser = null;
+    let isChangePwdMode = false;
 
-            function processChineseEncrypt(t){ const r=[]; for(const c of t){ const cp=c.codePointAt(0); if(cp>127){ if(cp<=0xFFFF) r.push(`￥u${cp.toString(16).padStart(4,'0')}￥`); else r.push(`￥U${cp.toString(16).padStart(8,'0')}￥`); } else r.push(c); } return r.join(''); }
-            function processChineseDecrypt(t){ return t.replace(/￥([uU][0-9a-fA-F]+)￥/g, (m,tag)=>{ const h=tag.slice(1); try{ return String.fromCodePoint(parseInt(h,16)); }catch{ return tag; } }); }
+    // 密码表（略，保持原样）
+    const ms_encrypt = { ' ': "*-***", '1': "*----", '2': "**---", '3': "***--", '4': "****-", '5': "*****", '6': "-****", '7': "--***", '8': "---**", '9': "----*", '0': "-----", '￥': "--**-", '\n': "-*--*", '-': "-*---" };
+    const jw_encrypt = { ' ': "  ", 'a': "21", 'b': "22", 'c': "23", 'd': "31", 'e': "32", 'f': "33", 'g': "41", 'h': "42", 'i': "43", 'j': "51", 'k': "52", 'l': "53", 'm': "61", 'n': "62", 'o': "63", 'p': "71", 'q': "72", 'r': "73", 's': "74", 't': "81", 'u': "82", 'v': "83", 'w': "91", 'x': "92", 'y': "93", 'z': "94", '1': "11", '2': "12", '3': "13", '4': "14", '5': "15", '6': "16", '7': "17", '8': "18", '9': "19", '0': "10", ',': "95", '.': "96", '?': "97", '!': "98", '\'': "00", '\"': "01", '+': "02", '-': "04", '*': "05", '/': "06", '=': "07", '(': "08", ')': "09", "@": "99", '%': "84", ':': "85", ';': "86", '<': "87", '>': "88", '#': "89", '$': "75", '^': "76", '&': "77", '`': "78", '~': "79", '[': "64", ']': "65", '{': "66", '}': "67", '|': "68", '_': "69", '\\': "54", '￥': "03", '\n': "0 ", '【': "20", '】': "30", '；': "40", '：': "50", '‘': "60", '“': "70", '、': "80", '，': "90", '。': "0-", '？': "1-", '《': "2-", '》': "3-", '·': "4-", '（': "5-", '）': "6-", '！': '7-', '…': '8-' };
+    const dn_encrypt = { ' ': ' ', 'q': 'a', 'w': 'b', 'e': 'c', 'r': 'd', 't': 'e', 'y': 'f', 'u': 'g', 'i': 'h', 'o': 'i', 'p': 'j', 'a': 'k', 's': 'l', 'd': 'm', 'f': 'n', 'g': 'o', 'h': 'p', 'j': 'q', 'k': 'r', 'l': 's', 'z': 't', 'x': 'u', 'c': 'v', 'v': 'w', 'b': 'x', 'n': 'y', 'm': 'z', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6', '7': '7', '8': '8', '9': '9', '0': '0', ',': ',', '.': '.', '?': '?', '!': '!', '\'': '\'', '\"': '\"', '+': '+', '-': '-', '*': '*', '/': '/', '=': '=', '(': '(', ')': ')', '@': '@', '%': '%', ':': ':', ';': ';', '<': '<', '>': '>', '#': '#', '$': '$', '^': '^', '&': '&', '`': '`', '~': '~', '[': '[', ']': ']', '{': '{', '}': '}', '|': '|', '_': '_', '\\': '\\', '￥': '￥', '\n': '\n', '【': '】', '】': '】', '；': '；', '：': '：', '’': '‘', '”': '“', '、': '、', '，': '，', '。': '。', '？': '？', '《': '《', '》': '》', '·': '·', '（': '（', '）': '）', '！': '！', '…': '…' };
+    const ms_decrypt = {}; for(const [k,v] of Object.entries(ms_encrypt)) ms_decrypt[v]=k;
+    const jw_decrypt = {}; for(const [k,v] of Object.entries(jw_encrypt)) jw_decrypt[v]=k;
+    const dn_decrypt = {}; for(const [k,v] of Object.entries(dn_encrypt)) dn_decrypt[v]=k;
 
-            function encryptLayer5(text){
-                let p=processChineseEncrypt(text);
-                const rev=p.split('').reverse().join('');
-                const mid=Math.ceil(rev.length/2);
-                const p1=rev.substring(0,mid), p2=rev.substring(mid);
-                const cross=[]; for(let i=0;i<Math.max(p1.length,p2.length);i++){ if(i<p1.length) cross.push(p1[i]); if(i<p2.length) cross.push(p2[i]); }
-                const dn=cross.join('').split('').map(c=>dn_encrypt[c]??c).join('');
-                const jw=dn.split('').map(c=>jw_encrypt[c]??c).join('');
-                const ms=jw.split('').map(c=>ms_encrypt[c]??c).join('');
-                if(!ms) return '';
-                const syms=[]; let cnt=1;
-                for(let i=1;i<ms.length;i++){ if(ms[i]===ms[i-1]) cnt++; else{ syms.push([ms[i-1],cnt]); cnt=1; } }
-                syms.push([ms[ms.length-1],cnt]);
-                return compactEncode(syms);
+    // 紧凑编码工具
+    function numberToLetterChar(n){ if(n>=1&&n<=9) return String.fromCharCode(64+n); if(n===0) return 'J'; throw new Error('映射错误'); }
+    function letterToNumber(c){ if(c>='A'&&c<='I') return c.charCodeAt(0)-64; if(c==='J') return 0; throw new Error('无效字母'); }
+    function compactEncode(symbols){ const r=[]; for(const [s,c] of symbols){ const d=String(c); r.push(s==='*'?d:d.split('').map(x=>numberToLetterChar(parseInt(x))).join('')); } return r.join(''); }
+    function compactDecode(str){ const syms=[]; let i=0; while(i<str.length){ const c=str[i]; if(c>='0'&&c<='9'){ const b=[]; while(i<str.length&&str[i]>='0'&&str[i]<='9') b.push(str[i++]); syms.push(['*',parseInt(b.join(''),10)]); } else if(c>='A'&&c<='J'){ const b=[]; while(i<str.length&&str[i]>='A'&&str[i]<='J') b.push(letterToNumber(str[i++])); syms.push(['-',parseInt(b.join(''),10)]); } else throw new Error('非法字符'); } return syms; }
+    function symbolsToContinuous(syms){ return syms.map(([s,c])=>s.repeat(c)).join(''); }
+    function splitContinuousMorse(cont, map){ const u=[]; let i=0; while(i<cont.length){ let m=null; for(let l=5;l>=1;l--){ if(i+l>cont.length) continue; const sub=cont.substring(i,i+l); if(sub in map){ m=sub; break; } } if(!m) throw new Error('无法分割'); u.push(m); i+=m.length; } return u; }
+
+    function processChineseEncrypt(t){ const r=[]; for(const c of t){ const cp=c.codePointAt(0); if(cp>127){ if(cp<=0xFFFF) r.push(`￥u${cp.toString(16).padStart(4,'0')}￥`); else r.push(`￥U${cp.toString(16).padStart(8,'0')}￥`); } else r.push(c); } return r.join(''); }
+    function processChineseDecrypt(t){ return t.replace(/￥([uU][0-9a-fA-F]+)￥/g, (m,tag)=>{ const h=tag.slice(1); try{ return String.fromCodePoint(parseInt(h,16)); }catch{ return tag; } }); }
+
+    function encryptLayer5(text){
+        let p=processChineseEncrypt(text);
+        const rev=p.split('').reverse().join('');
+        const mid=Math.ceil(rev.length/2);
+        const p1=rev.substring(0,mid), p2=rev.substring(mid);
+        const cross=[]; for(let i=0;i<Math.max(p1.length,p2.length);i++){ if(i<p1.length) cross.push(p1[i]); if(i<p2.length) cross.push(p2[i]); }
+        const dn=cross.join('').split('').map(c=>dn_encrypt[c]??c).join('');
+        const jw=dn.split('').map(c=>jw_encrypt[c]??c).join('');
+        const ms=jw.split('').map(c=>ms_encrypt[c]??c).join('');
+        if(!ms) return '';
+        const syms=[]; let cnt=1;
+        for(let i=1;i<ms.length;i++){ if(ms[i]===ms[i-1]) cnt++; else{ syms.push([ms[i-1],cnt]); cnt=1; } }
+        syms.push([ms[ms.length-1],cnt]);
+        return compactEncode(syms);
+    }
+    function decryptLayer5(data){
+        let cont=null, units=null;
+        if(/^[0-9A-J]+$/.test(data)&&data.length>0){ const syms=compactDecode(data); cont=symbolsToContinuous(syms); }
+        else if(/^[-*](\s+\d+)+$/.test(data.trim())){ const parts=data.trim().split(/\s+/); const sym=parts[0]; const lens=parts.slice(1).map(Number); let cur=sym; const arr=[]; for(const l of lens){ arr.push(cur.repeat(l)); cur=cur==='*'?'-':'*'; } cont=arr.join(''); }
+        else if(/^[0-9*\-]+$/.test(data)&&!data.includes(' ')){ let i=0,num=''; const arr=[]; while(i<data.length){ const c=data[i]; if(c>='0'&&c<='9'){ num+=c; i++; } else if(c==='*'||c==='-'){ const count=num?parseInt(num,10):1; arr.push(c.repeat(count)); num=''; i++; } else i++; } cont=arr.join(''); }
+        else if(data.includes(' ')){ units=data.split(' '); }
+        if(cont!==null) units=splitContinuousMorse(cont, ms_decrypt);
+        if(!units) throw new Error('无法解析');
+        const w=units.map(u=>ms_decrypt[u]??u).join('');
+        const d=[]; let i=0;
+        while(i<w.length){ if(i+1<w.length&&w.substring(i,i+2) in jw_decrypt){ d.push(jw_decrypt[w.substring(i,i+2)]); i+=2; } else{ d.push(w[i]); i++; } }
+        const f=d.join('').split('').map(c=>dn_decrypt[c]??c).join('');
+        const a1=[],a2=[]; for(let idx=0;idx<f.length;idx++){ if(idx%2===0) a1.push(f[idx]); else a2.push(f[idx]); }
+        const g=a1.concat(a2).join('');
+        return processChineseDecrypt(g.split('').reverse().join(''));
+    }
+
+    async function aesGcmEncrypt(plainBytes, keyBytes){
+        const key=await crypto.subtle.importKey('raw', keyBytes, {name:'AES-GCM'}, false, ['encrypt']);
+        const nonce=crypto.getRandomValues(new Uint8Array(12));
+        const ct=await crypto.subtle.encrypt({name:'AES-GCM', iv:nonce, tagLength:128}, key, plainBytes);
+        const combined=new Uint8Array(nonce.length+ct.byteLength);
+        combined.set(nonce,0); combined.set(new Uint8Array(ct), nonce.length);
+        return combined;
+    }
+    async function aesGcmDecrypt(cipherBytes, keyBytes){
+        if(cipherBytes.length<12) throw new Error('密文长度不足');
+        const nonce=cipherBytes.slice(0,12), ct=cipherBytes.slice(12);
+        const key=await crypto.subtle.importKey('raw', keyBytes, {name:'AES-GCM'}, false, ['decrypt']);
+        return new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM', iv:nonce, tagLength:128}, key, ct));
+    }
+    function bytesToHex(b){ return Array.from(b).map(x=>x.toString(16).padStart(2,'0')).join(''); }
+    function hexToBytes(h){ if(h.length%2) throw new Error('无效十六进制'); const b=new Uint8Array(h.length/2); for(let i=0;i<h.length;i+=2) b[i/2]=parseInt(h.substring(i,i+2),16); return b; }
+    function stringToUtf8Bytes(s){ return new TextEncoder().encode(s); }
+    function utf8BytesToString(b){ return new TextDecoder().decode(b); }
+
+    async function checkAES192Support(){ try{ await aesGcmEncrypt(new Uint8Array([1,2,3]), new Uint8Array(24)); return true; }catch(e){ return false; } }
+    (async ()=>{ if(!await checkAES192Support()) keyWarning.style.display='inline'; })();
+
+    // 加密操作
+    async function encrypt(){
+        const text = inputArea.value;
+        if(!text.trim()){ showToast('请先挥毫落墨','warn'); return; }
+        const choice = keyLevelSelect.value;
+        setStatus('idle','研磨加密中…');
+        const start = performance.now();
+        try{
+            let result;
+            if(choice==='none') result = encryptLayer5(text);
+            else{
+                let keyLen = choice==='low'?16: choice==='mid'?24:32;
+                if(keyLen===24 && !(await checkAES192Support())){ showToast('您的浏览器不支持AES-192，请更换密钥强度','err'); return; }
+                const inner = encryptLayer5(text);
+                const randomKey = crypto.getRandomValues(new Uint8Array(keyLen));
+                const cipherBin = await aesGcmEncrypt(stringToUtf8Bytes(inner), randomKey);
+                result = encryptLayer5(bytesToHex(randomKey)) + "|" + bytesToHex(cipherBin);
             }
+            outputArea.value = result;
+            timeDisplay.textContent = `耗时: ${(performance.now()-start).toFixed(1)}ms | 密文长度: ${result.length}`;
+            setStatus('success','加密功成 ✓');
+            showToast('🔒 加密已成，墨韵封缄','info');
+        }catch(e){ setStatus('error','加密失败'); showToast('加密失败: '+e.message,'err'); }
+    }
+    async function decrypt(){
+        const data = inputArea.value.trim();
+        if(!data){ showToast('请先放入密文','warn'); return; }
+        setStatus('idle','解译墨韵中…');
+        const start = performance.now();
+        try{
+            let plain;
+            if(data.includes('|')){
+                const sep = data.indexOf('|');
+                const left = data.substring(0,sep), hexCipher = data.substring(sep+1);
+                const keyHex = decryptLayer5(left);
+                const randomKey = hexToBytes(keyHex);
+                if(![16,24,32].includes(randomKey.length)) throw new Error('密钥长度无效');
+                if(randomKey.length===24 && !(await checkAES192Support())){ showToast('浏览器不支持AES-192解密','err'); return; }
+                const innerBytes = await aesGcmDecrypt(hexToBytes(hexCipher), randomKey);
+                plain = decryptLayer5(utf8BytesToString(innerBytes));
+            }else plain = decryptLayer5(data);
+            outputArea.value = plain;
+            timeDisplay.textContent = `耗时: ${(performance.now()-start).toFixed(1)}ms | 明文长度: ${plain.length}`;
+            setStatus('success','解密功成 ✓');
+            showToast('🔓 解密已成，文辞重现','info');
+        }catch(e){ setStatus('error','解密失败'); showToast('解密失败: '+e.message,'err'); }
+    }
 
-            function decryptLayer5(data){
-                let cont=null, units=null;
-                if(/^[0-9A-J]+$/.test(data)&&data.length>0){ const syms=compactDecode(data); cont=symbolsToContinuous(syms); }
-                else if(/^[-*](\s+\d+)+$/.test(data.trim())){ const parts=data.trim().split(/\s+/); const sym=parts[0]; const lens=parts.slice(1).map(Number); let cur=sym; const arr=[]; for(const l of lens){ arr.push(cur.repeat(l)); cur=cur==='*'?'-':'*'; } cont=arr.join(''); }
-                else if(/^[0-9*\-]+$/.test(data)&&!data.includes(' ')){ let i=0,num=''; const arr=[]; while(i<data.length){ const c=data[i]; if(c>='0'&&c<='9'){ num+=c; i++; } else if(c==='*'||c==='-'){ const count=num?parseInt(num,10):1; arr.push(c.repeat(count)); num=''; i++; } else i++; } cont=arr.join(''); }
-                else if(data.includes(' ')){ units=data.split(' '); }
-                if(cont!==null) units=splitContinuousMorse(cont, ms_decrypt);
-                if(!units) throw new Error('无法解析');
-                const w=units.map(u=>ms_decrypt[u]??u).join('');
-                const d=[]; let i=0;
-                while(i<w.length){ if(i+1<w.length&&w.substring(i,i+2) in jw_decrypt){ d.push(jw_decrypt[w.substring(i,i+2)]); i+=2; } else{ d.push(w[i]); i++; } }
-                const f=d.join('').split('').map(c=>dn_decrypt[c]??c).join('');
-                const a1=[],a2=[]; for(let idx=0;idx<f.length;idx++){ if(idx%2===0) a1.push(f[idx]); else a2.push(f[idx]); }
-                const g=a1.concat(a2).join('');
-                return processChineseDecrypt(g.split('').reverse().join(''));
-            }
+    function clearAll(){ inputArea.value=''; outputArea.value=''; updateCharCount(); setStatus('idle','静候墨韵'); }
+    async function copyResult(){ const res=outputArea.value.trim(); if(!res){ showToast('无墨可复制','warn'); return; } try{ await navigator.clipboard.writeText(res); showToast('📋 已复制','info'); }catch{ outputArea.select(); document.execCommand('copy'); showToast('📋 已复制','info'); } }
+    function importFile(){ fileInput.click(); }
+    function exportFile(){ const res=outputArea.value; if(!res.trim()){ showToast('无墨可导出','warn'); return; } const blob=new Blob([res],{type:'text/plain'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='墨韵密文.txt'; a.click(); }
+    fileInput.addEventListener('change',(e)=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=ev=>{ inputArea.value=ev.target.result; updateCharCount(); }; r.readAsText(f); });
+    function updateCharCount(){ charCount.textContent='字数: '+inputArea.value.length; }
+    function setStatus(type,text){ statusDot.className='status-dot '+type; statusText.textContent=text; }
 
-            async function aesGcmEncrypt(plainBytes, keyBytes){
-                const key=await crypto.subtle.importKey('raw', keyBytes, {name:'AES-GCM'}, false, ['encrypt']);
-                const nonce=crypto.getRandomValues(new Uint8Array(12));
-                const ct=await crypto.subtle.encrypt({name:'AES-GCM', iv:nonce, tagLength:128}, key, plainBytes);
-                const combined=new Uint8Array(nonce.length+ct.byteLength);
-                combined.set(nonce,0); combined.set(new Uint8Array(ct), nonce.length);
-                return combined;
-            }
-            async function aesGcmDecrypt(cipherBytes, keyBytes){
-                if(cipherBytes.length<12) throw new Error('密文长度不足');
-                const nonce=cipherBytes.slice(0,12), ct=cipherBytes.slice(12);
-                const key=await crypto.subtle.importKey('raw', keyBytes, {name:'AES-GCM'}, false, ['decrypt']);
-                return new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM', iv:nonce, tagLength:128}, key, ct));
-            }
-            function bytesToHex(b){ return Array.from(b).map(x=>x.toString(16).padStart(2,'0')).join(''); }
-            function hexToBytes(h){ if(h.length%2) throw new Error('无效十六进制'); const b=new Uint8Array(h.length/2); for(let i=0;i<h.length;i+=2) b[i/2]=parseInt(h.substring(i,i+2),16); return b; }
-            function stringToUtf8Bytes(s){ return new TextEncoder().encode(s); }
-            function utf8BytesToString(b){ return new TextDecoder().decode(b); }
+    // 登录逻辑
+    function showToast(msg,type='info'){ toast.textContent=msg; toast.className='toast '+type+' show'; setTimeout(()=>toast.className='toast',2400); }
+    async function apiFetch(path,opt={}){ const res=await fetch(API_BASE+path,{...opt,credentials:'include',headers:{'Content-Type':'application/json',...opt.headers}}); const data=await res.json().catch(()=>({})); if(!res.ok) throw new Error(data.error||'请求失败'); return data; }
+    async function checkLoginStatus(){ try{ const d=await apiFetch('/api/me'); if(d&&d.username){ currentUser=d; updateLoginUI(); }else{ currentUser=null; updateLoginUI(); } }catch(e){ currentUser=null; updateLoginUI(); } }
+    function updateLoginUI(){
+        if(currentUser){ btnLogin.style.display='none'; btnLogout.style.display='inline-flex'; userBadge.style.display='flex'; userDot.className='dot'; userNameDisplay.textContent=currentUser.username; btnChangePwd.style.display='inline-flex'; }
+        else{ btnLogin.style.display='inline-flex'; btnLogout.style.display='none'; userBadge.style.display='none'; btnChangePwd.style.display='none'; }
+    }
+    function openLoginModal(){ loginUsername.value=''; loginPassword.value=''; loginError.textContent=''; changePwdArea.style.display='none'; isChangePwdMode=false; btnChangePwd.style.display=currentUser?'inline-flex':'none'; btnLoginSubmit.style.display='inline-flex'; loginModal.classList.add('active'); }
+    function closeLoginModal(){ loginModal.classList.remove('active'); changePwdArea.style.display='none'; }
+    btnLogin.addEventListener('click', openLoginModal);
+    btnLogout.addEventListener('click', async ()=>{ await apiFetch('/api/logout',{method:'POST'}); currentUser=null; updateLoginUI(); closeLoginModal(); showToast('已登出','info'); });
+    userBadge.addEventListener('click', openLoginModal);
+    btnModalClose.addEventListener('click', closeLoginModal);
+    btnLoginSubmit.addEventListener('click', async ()=>{
+        const u=loginUsername.value.trim(), p=loginPassword.value;
+        if(!u||!p){ loginError.textContent='请输入用户名和密码'; return; }
+        try{ const d=await apiFetch('/api/login',{method:'POST',body:JSON.stringify({username:u,password:p})}); currentUser=d; updateLoginUI(); closeLoginModal(); showToast(`🏮 欢迎，${d.username}`,'info'); }catch(e){ loginError.textContent=e.message; }
+    });
+    btnChangePwd.addEventListener('click', ()=>{ isChangePwdMode=!isChangePwdMode; if(isChangePwdMode){ changePwdArea.style.display='block'; btnLoginSubmit.style.display='none'; }else{ changePwdArea.style.display='none'; btnLoginSubmit.style.display='inline-flex'; } });
+    btnPwdSubmit.addEventListener('click', async ()=>{
+        const op=oldPassword.value, np=newPassword.value;
+        if(!op||!np){ pwdError.textContent='请填写旧密码和新密码'; return; }
+        if(np.length<6){ pwdError.textContent='新密码至少6位'; return; }
+        try{ await apiFetch('/api/me/password',{method:'PUT',body:JSON.stringify({oldPassword:op,newPassword:np})}); showToast('密码修改成功','info'); closeLoginModal(); }catch(e){ pwdError.textContent=e.message; }
+    });
+    loginModal.addEventListener('click',(e)=>{ if(e.target===loginModal) closeLoginModal(); });
 
-            // 检测浏览器是否支持AES-192
-            async function checkAES192Support() {
-                try {
-                    const key = new Uint8Array(24); // 192-bit
-                    const data = new Uint8Array([1,2,3]);
-                    await aesGcmEncrypt(data, key);
-                    return true;
-                } catch(e) {
-                    return false;
-                }
-            }
+    // Markdown 编辑器逻辑
+    mermaid.initialize({ startOnLoad:false, theme:'default' });
+    const renderer = new marked.Renderer();
+    renderer.code = function(code, lang){
+        if(lang==='mermaid') return `<pre class="mermaid">${code}</pre>`;
+        const highlighted = lang && hljs.getLanguage(lang) ? hljs.highlight(code,{language:lang,ignoreIllegals:true}).value : hljs.highlightAuto(code).value;
+        return `<pre><code class="hljs ${lang?`language-${lang}`:''}">${highlighted}</code></pre>`;
+    };
+    marked.use({ renderer });
 
-            // 初始化时检测并显示警告
-            (async () => {
-                const supported = await checkAES192Support();
-                if (!supported) {
-                    keyWarning.style.display = 'inline';
-                    // 可选：自动禁用中级选项
-                    // keyLevelSelect.querySelector('option[value="mid"]').disabled = true;
-                }
-            })();
+    function renderMd(){
+        const raw = mdEditorArea.value;
+        if(!raw.trim()){ mdPreview.innerHTML='<p style="color:#94a3b8;">预览将显示在这里...</p>'; return; }
+        let html = '';
+        try{ html = marked.parse(raw); }catch(e){ html=`<p style="color:red">Markdown 解析错误</p>`; }
+        mdPreview.innerHTML = html;
+        try{ if(typeof renderMathInElement==='function' && window.katex) renderMathInElement(mdPreview,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false}); }catch(e){}
+        try{ const nodes = mdPreview.querySelectorAll('.mermaid'); if(nodes.length) mermaid.run({nodes, suppressErrors:true}); }catch(e){}
+    }
+    mdEditorArea.addEventListener('input', ()=>{ clearTimeout(window._mdTimer); window._mdTimer=setTimeout(renderMd,200); });
+    btnMdEditor.addEventListener('click', ()=>{ mdPanelOverlay.classList.add('active'); });
+    btnMdClose.addEventListener('click', ()=>{ mdPanelOverlay.classList.remove('active'); });
+    btnMdImport.addEventListener('click', ()=>{ inputArea.value = mdEditorArea.value; updateCharCount(); mdPanelOverlay.classList.remove('active'); showToast('📥 Markdown 内容已导入加密输入','info'); });
+    btnMdEncrypt.addEventListener('click', async ()=>{ inputArea.value = mdEditorArea.value; updateCharCount(); mdPanelOverlay.classList.remove('active'); await encrypt(); });
 
-            // 加密函数，处理192错误
-            async function encrypt() {
-                const text = inputArea.value;
-                if (!text.trim()) { showToast('请先挥毫落墨', 'warn'); return; }
-                const choice = keyLevelSelect.value;
-                setStatus('idle', '研磨加密中…');
-                const start = performance.now();
-                try {
-                    let result;
-                    if (choice === 'none') {
-                        result = encryptLayer5(text);
-                    } else {
-                        let keyLen;
-                        if (choice === 'low') keyLen = 16;
-                        else if (choice === 'mid') keyLen = 24;
-                        else keyLen = 32;
+    // 涟漪、墨屑
+    function createRipple(x,y){ const r=document.createElement('div'); r.className='ripple-ring'; r.style.left=x+'px'; r.style.top=y+'px'; rippleContainer.appendChild(r); r.addEventListener('animationend',()=>r.remove()); }
+    document.addEventListener('click',(e)=>createRipple(e.clientX,e.clientY));
+    function createInkParticle(){ const p=document.createElement('div'); p.className='ink-particle'; p.style.width=(Math.random()*5+2)+'px'; p.style.height=p.style.width; p.style.left=Math.random()*100+'%'; p.style.animationDuration=Math.random()*8+6+'s'; fallingInks.appendChild(p); p.addEventListener('animationend',()=>p.remove()); }
+    setInterval(()=>{ if(fallingInks.children.length<15) createInkParticle(); },900);
+    for(let i=0;i<6;i++) setTimeout(createInkParticle, i*400);
 
-                        if (keyLen === 24) {
-                            const supported = await checkAES192Support();
-                            if (!supported) {
-                                showToast('您的浏览器不支持AES-192，请使用低级或超级密钥', 'err');
-                                setStatus('error', '192-bit不支持');
-                                return;
-                            }
-                        }
-                        const inner = encryptLayer5(text);
-                        const randomKey = crypto.getRandomValues(new Uint8Array(keyLen));
-                        const innerBytes = stringToUtf8Bytes(inner);
-                        const cipherBin = await aesGcmEncrypt(innerBytes, randomKey);
-                        const encryptedKey = encryptLayer5(bytesToHex(randomKey));
-                        result = encryptedKey + "|" + bytesToHex(cipherBin);
-                    }
-                    outputArea.value = result;
-                    const elapsed = (performance.now() - start).toFixed(1);
-                    timeDisplay.textContent = `耗时: ${elapsed}ms | 密文长度: ${result.length}`;
-                    setStatus('success', '加密功成 ✓');
-                    showToast('🔒 加密已成，墨韵封缄', 'info');
-                } catch (e) {
-                    setStatus('error', '加密失败');
-                    if (e.message && e.message.includes('192')) {
-                        showToast('当前浏览器不支持AES-192，请更换密钥强度或使用现代浏览器', 'err');
-                    } else {
-                        showToast('加密失败: ' + e.message, 'err');
-                    }
-                    console.error(e);
-                }
-            }
-
-            async function decrypt() {
-                const data = inputArea.value.trim();
-                if (!data) { showToast('请先放入密文', 'warn'); return; }
-                setStatus('idle', '解译墨韵中…');
-                const start = performance.now();
-                try {
-                    let plain;
-                    if (data.includes('|')) {
-                        const sep = data.indexOf('|');
-                        const left = data.substring(0, sep);
-                        const hexCipher = data.substring(sep+1);
-                        const keyHex = decryptLayer5(left);
-                        const randomKey = hexToBytes(keyHex);
-                        if (![16,24,32].includes(randomKey.length)) throw new Error('密钥长度无效: '+randomKey.length);
-                        // 如果是192位密钥且浏览器不支持，则提示
-                        if (randomKey.length === 24) {
-                            const supported = await checkAES192Support();
-                            if (!supported) {
-                                showToast('您的浏览器不支持AES-192解密，请更换浏览器', 'err');
-                                setStatus('error', '192-bit不支持');
-                                return;
-                            }
-                        }
-                        const cipherBin = hexToBytes(hexCipher);
-                        const innerBytes = await aesGcmDecrypt(cipherBin, randomKey);
-                        plain = decryptLayer5(utf8BytesToString(innerBytes));
-                    } else {
-                        plain = decryptLayer5(data);
-                    }
-                    outputArea.value = plain;
-                    const elapsed = (performance.now() - start).toFixed(1);
-                    timeDisplay.textContent = `耗时: ${elapsed}ms | 明文长度: ${plain.length}`;
-                    setStatus('success', '解密功成 ✓');
-                    showToast('🔓 解密已成，文辞重现', 'info');
-                } catch (e) {
-                    setStatus('error', '解密失败');
-                    if (e.message && e.message.includes('192')) {
-                        showToast('当前浏览器不支持AES-192解密', 'err');
-                    } else {
-                        showToast('解密失败: ' + e.message, 'err');
-                    }
-                    console.error(e);
-                }
-            }
-
-            // 墨滴溅射特效（按钮等）
-            function createSplash(elem, x, y) {
-                const splash = document.createElement('div');
-                splash.className = 'ink-splash';
-                splash.style.left = x + 'px';
-                splash.style.top = y + 'px';
-                splash.style.width = '10px';
-                splash.style.height = '10px';
-                elem.appendChild(splash);
-                splash.addEventListener('animationend', () => splash.remove());
-            }
-
-            // 给所有按钮添加点击墨滴特效
-            document.querySelectorAll('button').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    const rect = btn.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const y = e.clientY - rect.top;
-                    createSplash(btn, x, y);
-                });
-            });
-
-            // 全局涟漪（保留）
-            function createRipple(x, y) {
-                const ring = document.createElement('div');
-                ring.className = 'ripple-ring';
-                ring.style.left = x + 'px';
-                ring.style.top = y + 'px';
-                rippleContainer.appendChild(ring);
-                ring.addEventListener('animationend', () => ring.remove());
-            }
-            document.addEventListener('click', (e) => createRipple(e.clientX, e.clientY));
-
-            // 飘落墨屑
-            function createInkParticle() {
-                const p = document.createElement('div');
-                p.className = 'ink-particle';
-                const size = Math.random()*5+2;
-                p.style.width = size+'px'; p.style.height = size+'px';
-                p.style.left = Math.random()*100+'%';
-                p.style.animationDuration = Math.random()*8+6+'s';
-                fallingInks.appendChild(p);
-                p.addEventListener('animationend', ()=>p.remove());
-            }
-            setInterval(()=>{ if(fallingInks.children.length<15) createInkParticle(); }, 900);
-            for(let i=0;i<6;i++) setTimeout(createInkParticle, i*400);
-
-            // 其它UI逻辑...
-            function showToast(msg, type='info'){ /* 保持不变 */ }
-            function setStatus(type, text){ statusDot.className='status-dot '+type; statusText.textContent=text; }
-            function updateCharCount(){ charCount.textContent='字数: '+inputArea.value.length; }
-            // 登录逻辑...
-            // (由于篇幅，登录部分代码与之前相同，此处省略，实际需保留)
-            // ...
-
-            // 事件绑定
-            btnEncrypt.addEventListener('click', encrypt);
-            btnDecrypt.addEventListener('click', decrypt);
-            btnClear.addEventListener('click', ()=>{ inputArea.value=''; outputArea.value=''; updateCharCount(); setStatus('idle','静候墨韵'); });
-            btnCopy.addEventListener('click', async ()=>{
-                const res=outputArea.value.trim();
-                if(!res){ showToast('无墨可复制','warn'); return; }
-                try{ await navigator.clipboard.writeText(res); showToast('📋 已复制','info'); }catch{ outputArea.select(); document.execCommand('copy'); showToast('📋 已复制','info'); }
-            });
-            btnImport.addEventListener('click', ()=>fileInput.click());
-            btnExport.addEventListener('click', ()=>{
-                const res=outputArea.value;
-                if(!res.trim()){ showToast('无墨可导出','warn'); return; }
-                const blob=new Blob([res],{type:'text/plain'});
-                const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='墨韵密文.txt'; a.click();
-            });
-            fileInput.addEventListener('change', (e)=>{
-                const file=e.target.files[0]; if(!file) return;
-                const reader=new FileReader();
-                reader.onload=ev=>{ inputArea.value=ev.target.result; updateCharCount(); };
-                reader.readAsText(file);
-            });
-            inputArea.addEventListener('input', updateCharCount);
-            updateCharCount();
-
-            // 登录相关 (保留原逻辑)
-            // ...
-        })();
-    </script>
+    // 事件绑定
+    btnEncrypt.addEventListener('click', encrypt);
+    btnDecrypt.addEventListener('click', decrypt);
+    btnClear.addEventListener('click', clearAll);
+    btnCopy.addEventListener('click', copyResult);
+    btnImport.addEventListener('click', importFile);
+    btnExport.addEventListener('click', exportFile);
+    inputArea.addEventListener('input', updateCharCount);
+    updateCharCount();
+    checkLoginStatus();
+    console.log('🖌️ 墨韵卷轴已展开 (含Markdown)');
+})();
+</script>
 </body>
 </html>
