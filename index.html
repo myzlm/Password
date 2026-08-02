@@ -13,52 +13,12 @@
     <script src="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
     <style>
-        :root {
-            --paper: #f5efe0;
-            --ink: #2c1f14;
-            --ink-light: #5a3e2b;
-            --vermillion: #b5342e;
-            --gold: #a67c3c;
-            --jade: #6b8e6b;
-            --cream: #faf5eb;
-            --neon-cyan: #00f0ff;
-            --neon-magenta: #ff00aa;
-            --neon-purple: #b300ff;
-            --shadow-ink: rgba(44,31,20,0.2);
-            --font-brush: 'Ma Shan Zheng', 'STKaiti', 'KaiTi', '楷体', serif;
-            --font-hand: 'Long Cang', 'STKaiti', 'KaiTi', '楷体', cursive;
-            --font-body: 'ZCOOL XiaoWei', 'STSong', 'SimSun', '宋体', serif;
-            --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
-            --transition-ink: 0.3s cubic-bezier(0.25,0.46,0.45,0.94);
-            --glow-cyan: 0 0 15px rgba(0,240,255,0.6);
-            --glow-magenta: 0 0 15px rgba(255,0,170,0.6);
-        }
-
+        /* 保持原有科技墨韵风格 (不变) */
+        :root { --paper: #f5efe0; --ink: #2c1f14; --ink-light: #5a3e2b; --vermillion: #b5342e; --gold: #a67c3c; --jade: #6b8e6b; --cream: #faf5eb; --neon-cyan: #00f0ff; --neon-magenta: #ff00aa; --font-brush: 'Ma Shan Zheng', 'STKaiti', 'KaiTi', '楷体', serif; --font-hand: 'Long Cang', 'STKaiti', 'KaiTi', '楷体', cursive; --font-body: 'ZCOOL XiaoWei', 'STSong', 'SimSun', '宋体', serif; --font-mono: 'JetBrains Mono', 'Fira Code', monospace; }
         * { margin:0; padding:0; box-sizing:border-box; }
-        body {
-            font-family: var(--font-body);
-            background: #0a0806;
-            background-image: 
-                url("data:image/svg+xml,%3Csvg width='400' height='400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
-                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,240,255,0.02) 2px, rgba(0,240,255,0.02) 4px),
-                radial-gradient(ellipse at 30% 20%, rgba(0,240,255,0.05) 0%, transparent 60%),
-                radial-gradient(ellipse at 70% 80%, rgba(255,0,170,0.05) 0%, transparent 60%);
-            min-height: 100vh;
-            display: flex; align-items: center; justify-content: center;
-            padding: 20px; color: var(--ink);
-            overflow-x: hidden; position: relative;
-        }
-
-        /* 科技扫描线 */
-        .scanlines {
-            position: fixed; top:0; left:0; width:100%; height:100%;
-            pointer-events: none; z-index:1;
-            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,240,255,0.03) 2px, rgba(0,240,255,0.03) 4px);
-            animation: scanMove 8s linear infinite;
-        }
+        body { font-family: var(--font-body); background: #0a0806; background-image: url("data:image/svg+xml,%3Csvg width='400' height='400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"), repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,240,255,0.02) 2px, rgba(0,240,255,0.02) 4px), radial-gradient(ellipse at 30% 20%, rgba(0,240,255,0.05) 0%, transparent 60%), radial-gradient(ellipse at 70% 80%, rgba(255,0,170,0.05) 0%, transparent 60%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; color: var(--ink); overflow-x: hidden; position: relative; }
+        .scanlines { position: fixed; top:0; left:0; width:100%; height:100%; pointer-events: none; z-index:1; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,240,255,0.03) 2px, rgba(0,240,255,0.03) 4px); animation: scanMove 8s linear infinite; }
         @keyframes scanMove { 0%{ background-position:0 0; } 100%{ background-position:0 40px; } }
-
-        /* 墨韵背景层（保留） */
         .ink-wash-layer{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden;}
         .ink-wash-blob{position:absolute;border-radius:50%;filter:blur(80px);opacity:0.06;animation:inkDrift 18s ease-in-out infinite;}
         .ink-wash-blob:nth-child(1){width:350px;height:350px;background:#3a2a1a;top:10%;left:5%;animation-duration:20s;}
@@ -66,163 +26,58 @@
         .ink-wash-blob:nth-child(3){width:400px;height:400px;background:#2c1f14;bottom:-5%;left:30%;animation-delay:-13s;animation-duration:25s;opacity:0.04;}
         .ink-wash-blob:nth-child(4){width:220px;height:220px;background:#4a2a18;top:30%;right:20%;animation-delay:-3s;animation-duration:19s;opacity:0.055;}
         @keyframes inkDrift{0%,100%{transform:translate(0,0) scale(1);}15%{transform:translate(60px,-30px) scale(1.12);}30%{transform:translate(-40px,50px) scale(0.92);}45%{transform:translate(25px,-55px) scale(1.08);}60%{transform:translate(-70px,-20px) scale(0.95);}75%{transform:translate(50px,40px) scale(1.05);}90%{transform:translate(-20px,-60px) scale(0.9);}}
-
         .falling-inks{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;}
         .ink-particle{position:absolute;top:-30px;border-radius:50%;background:rgba(30,18,8,0.7);animation:inkFall linear forwards;}
         @keyframes inkFall{0%{transform:translateY(-30px) rotate(0deg) scale(1);opacity:0.75;}60%{opacity:0.5;}100%{transform:translateY(105vh) rotate(720deg) scale(0.3);opacity:0;}}
-
-        /* 卷轴容器 - 科技边框 */
-        .scroll-container {
-            position:relative; z-index:10;
-            width:100%; max-width:980px;
-            background: rgba(250,245,235,0.9);
-            backdrop-filter: blur(10px);
-            border-radius: 4px;
-            box-shadow: 0 0 30px rgba(0,240,255,0.3), 0 0 60px rgba(255,0,170,0.2), 0 8px 50px rgba(0,0,0,0.5);
-            border: 1px solid rgba(0,240,255,0.4);
-            padding: 28px 30px 24px;
-            margin: 20px 0;
-            overflow: visible;
-            animation: borderGlow 4s ease-in-out infinite alternate;
-        }
-        @keyframes borderGlow {
-            0% { box-shadow: 0 0 30px rgba(0,240,255,0.4), 0 0 60px rgba(255,0,170,0.2); }
-            50% { box-shadow: 0 0 40px rgba(0,240,255,0.6), 0 0 80px rgba(255,0,170,0.4); }
-            100% { box-shadow: 0 0 30px rgba(0,240,255,0.4), 0 0 60px rgba(255,0,170,0.2); }
-        }
-        .axis-rod {
-            position:absolute; left:-8px; right:-8px; height:22px;
-            background: linear-gradient(180deg, #7d4e2b, #9b6b45, #7d4e2b);
-            border-radius:12px;
-            box-shadow: 0 0 20px rgba(0,240,255,0.5), 0 0 40px rgba(0,240,255,0.3);
-            z-index:0; pointer-events:none;
-        }
+        .scroll-container { position:relative; z-index:10; width:100%; max-width:980px; background: rgba(250,245,235,0.9); backdrop-filter: blur(10px); border-radius: 4px; box-shadow: 0 0 30px rgba(0,240,255,0.3), 0 0 60px rgba(255,0,170,0.2), 0 8px 50px rgba(0,0,0,0.5); border: 1px solid rgba(0,240,255,0.4); padding: 28px 30px 24px; margin: 20px 0; overflow: visible; animation: borderGlow 4s ease-in-out infinite alternate; }
+        @keyframes borderGlow { 0% { box-shadow: 0 0 30px rgba(0,240,255,0.4), 0 0 60px rgba(255,0,170,0.2); } 50% { box-shadow: 0 0 40px rgba(0,240,255,0.6), 0 0 80px rgba(255,0,170,0.4); } 100% { box-shadow: 0 0 30px rgba(0,240,255,0.4), 0 0 60px rgba(255,0,170,0.2); } }
+        .axis-rod { position:absolute; left:-8px; right:-8px; height:22px; background: linear-gradient(180deg, #7d4e2b, #9b6b45, #7d4e2b); border-radius:12px; box-shadow: 0 0 20px rgba(0,240,255,0.5), 0 0 40px rgba(0,240,255,0.3); z-index:0; pointer-events:none; }
         .axis-rod.top{top:-14px;} .axis-rod.bottom{bottom:-14px;}
-
-        .scroll-inner{position:relative;z-index:5;background:inherit;border-radius:2px;}
-
-        /* 印章 - 全息效果 */
-        .seal-stamp {
-            position:absolute; width:70px; height:70px;
-            border:3px solid var(--vermillion);
-            border-radius:50%;
-            display:flex; align-items:center; justify-content:center;
-            color: var(--vermillion);
-            font-family:var(--font-brush); font-size:1.3rem; font-weight:bold;
-            transform:rotate(-12deg);
-            opacity:0.9; pointer-events:none; z-index:25;
-            text-shadow: 0 0 8px rgba(181,52,46,0.8);
-            box-shadow: inset 0 0 12px rgba(181,52,46,0.4), 0 0 20px rgba(0,240,255,0.5);
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(4px);
-            animation: sealPulse 2s ease-in-out infinite;
-        }
-        @keyframes sealPulse {
-            0%,100% { box-shadow: inset 0 0 12px rgba(181,52,46,0.4), 0 0 20px rgba(0,240,255,0.5); }
-            50% { box-shadow: inset 0 0 20px rgba(181,52,46,0.7), 0 0 30px rgba(255,0,170,0.6); }
-        }
+        .scroll-inner{position:relative;z-index:5;background:inherit;}
+        .seal-stamp { position:absolute; width:70px; height:70px; border:3px solid var(--vermillion); border-radius:50%; display:flex; align-items:center; justify-content:center; color: var(--vermillion); font-family:var(--font-brush); font-size:1.3rem; font-weight:bold; transform:rotate(-12deg); opacity:0.9; pointer-events:none; z-index:25; text-shadow: 0 0 8px rgba(181,52,46,0.8); box-shadow: inset 0 0 12px rgba(181,52,46,0.4), 0 0 20px rgba(0,240,255,0.5); background: rgba(255,255,255,0.1); backdrop-filter: blur(4px); animation: sealPulse 2s ease-in-out infinite; }
+        @keyframes sealPulse { 0%,100% { box-shadow: inset 0 0 12px rgba(181,52,46,0.4), 0 0 20px rgba(0,240,255,0.5); } 50% { box-shadow: inset 0 0 20px rgba(181,52,46,0.7), 0 0 30px rgba(255,0,170,0.6); } }
         .seal-stamp.top-right{top:-35px;right:-15px;width:65px;height:65px;font-size:1.1rem;transform:rotate(10deg);}
         .seal-stamp.bottom-left{bottom:-30px;left:-10px;width:60px;height:60px;font-size:0.95rem;transform:rotate(-15deg);}
-
-        .header-bar {
-            display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap;
-            gap:14px; margin-bottom:18px; padding-bottom:14px;
-            border-bottom:2px dashed rgba(0,240,255,0.4);
-        }
+        .header-bar { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px; margin-bottom:18px; padding-bottom:14px; border-bottom:2px dashed rgba(0,240,255,0.4); }
         .app-title-group{display:flex;align-items:center;gap:10px;}
-        .app-title-icon {
-            width:44px; height:44px;
-            background:linear-gradient(135deg, #3a2a1a, #5a3e2b);
-            border-radius:50%;
-            display:flex; align-items:center; justify-content:center;
-            font-size:1.5rem; color:#f5efe0;
-            box-shadow: 0 0 15px rgba(0,240,255,0.6);
-            border:2px solid var(--gold);
-        }
-        .app-title {
-            font-family:var(--font-brush); font-size:2rem;
-            color: var(--ink);
-            letter-spacing:0.06em;
-            text-shadow: 0 0 10px rgba(0,240,255,0.5);
-        }
+        .app-title-icon { width:44px; height:44px; background:linear-gradient(135deg, #3a2a1a, #5a3e2b); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.5rem; color:#f5efe0; box-shadow: 0 0 15px rgba(0,240,255,0.6); border:2px solid var(--gold); }
+        .app-title { font-family:var(--font-brush); font-size:2rem; color: var(--ink); letter-spacing:0.06em; text-shadow: 0 0 10px rgba(0,240,255,0.5); }
         .app-subtitle{font-family:var(--font-hand);font-size:0.85rem;color:var(--ink-light);}
-
         .login-area{display:flex;align-items:center;gap:10px;flex-shrink:0;}
         .user-badge{display:flex;align-items:center;gap:8px;background:rgba(245,239,224,0.8);border:1px solid rgba(0,240,255,0.5);border-radius:25px;padding:6px 14px;font-family:var(--font-hand);color:var(--ink);cursor:pointer;}
-        .btn-login,.btn-logout{
-            font-family:var(--font-brush); font-size:1rem;
-            padding:8px 18px; border-radius:22px;
-            border:1.5px solid var(--gold);
-            background:linear-gradient(180deg, #faf5eb, #f0e6d5);
-            color:var(--ink-light); cursor:pointer;
-            transition:all var(--transition-ink);
-            box-shadow: 0 0 10px rgba(0,240,255,0.3);
-        }
-        .btn-login:hover,.btn-logout:hover{
-            background:linear-gradient(180deg, #fdf8f2, #f5ebdb);
-            border-color:#00f0ff;
-            box-shadow: 0 0 20px rgba(0,240,255,0.6);
-        }
-
+        .btn-login,.btn-logout{ font-family:var(--font-brush); font-size:1rem; padding:8px 18px; border-radius:22px; border:1.5px solid var(--gold); background:linear-gradient(180deg, #faf5eb, #f0e6d5); color:var(--ink-light); cursor:pointer; transition:all var(--transition-ink); box-shadow: 0 0 10px rgba(0,240,255,0.3); }
+        .btn-login:hover,.btn-logout:hover{ background:linear-gradient(180deg, #fdf8f2, #f5ebdb); border-color:#00f0ff; box-shadow: 0 0 20px rgba(0,240,255,0.6); }
         .key-select-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;font-family:var(--font-hand);}
         .key-select-row select{font-family:var(--font-body);font-size:0.9rem;padding:8px 30px 8px 12px;border-radius:20px;border:1.5px solid rgba(0,240,255,0.5);background:#fdfaf4;color:var(--ink);cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a3e2b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'%3E%3C/path%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;transition:all var(--transition-ink);box-shadow:0 0 10px rgba(0,240,255,0.2);}
         .key-lock-hint{font-size:0.8rem;color:var(--neon-magenta);margin-left:4px;display:none;text-shadow:0 0 5px var(--neon-magenta);}
-
         .section-card{background:rgba(253,250,244,0.8);border:1px solid rgba(0,240,255,0.3);border-radius:8px;padding:16px 18px;margin-bottom:12px;box-shadow:0 0 20px rgba(0,240,255,0.1);}
         .section-label{font-family:var(--font-brush);font-size:1.1rem;color:var(--ink);margin-bottom:8px;display:flex;align-items:center;gap:8px;}
         .dot{width:8px;height:8px;border-radius:50%;display:inline-block;}
         .dot-input{background:var(--vermillion);box-shadow:0 0 8px rgba(181,52,46,0.8);}
         .dot-output{background:var(--jade);box-shadow:0 0 8px rgba(107,142,107,0.8);}
-
-        textarea{
-            width:100%; border:1px solid rgba(0,240,255,0.3); border-radius:6px;
-            padding:14px 16px; font-family:var(--font-mono); font-size:0.88rem;
-            resize:vertical; min-height:110px; max-height:280px;
-            line-height:1.7; outline:none;
-            background:rgba(255,252,247,0.9); color:var(--ink);
-            transition:all var(--transition-ink);
-            box-shadow:inset 0 1px 4px rgba(0,0,0,0.04), 0 0 10px rgba(0,240,255,0.1);
-        }
+        textarea{ width:100%; border:1px solid rgba(0,240,255,0.3); border-radius:6px; padding:14px 16px; font-family:var(--font-mono); font-size:0.88rem; resize:vertical; min-height:110px; max-height:280px; line-height:1.7; outline:none; background:rgba(255,252,247,0.9); color:var(--ink); transition:all var(--transition-ink); box-shadow:inset 0 1px 4px rgba(0,0,0,0.04), 0 0 10px rgba(0,240,255,0.1); }
         textarea:focus{border-color:rgba(0,240,255,0.8);box-shadow:0 0 20px rgba(0,240,255,0.3);}
         textarea#outputArea{background:rgba(248,244,236,0.9);}
-
         .btn-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:6px 0;}
-        button{
-            font-family:var(--font-brush); font-size:1rem;
-            padding:10px 22px; border-radius:25px;
-            border:none; cursor:pointer; letter-spacing:0.05em;
-            transition:all var(--transition-ink);
-            white-space:nowrap; position:relative; overflow:hidden;
-            box-shadow:0 0 15px rgba(0,240,255,0.3);
-        }
+        button{ font-family:var(--font-brush); font-size:1rem; padding:10px 22px; border-radius:25px; border:none; cursor:pointer; letter-spacing:0.05em; transition:all var(--transition-ink); white-space:nowrap; position:relative; overflow:hidden; box-shadow:0 0 15px rgba(0,240,255,0.3); }
         .btn-encrypt{background:linear-gradient(180deg,#d4463c,#b5342e);color:#fdf5e6;box-shadow:0 0 20px rgba(181,52,46,0.6);}
         .btn-encrypt:hover{box-shadow:0 0 30px rgba(255,0,170,0.8);}
         .btn-decrypt{background:linear-gradient(180deg,#5a8a5a,#4a704a);color:#fdf5e6;box-shadow:0 0 20px rgba(74,112,74,0.6);}
         .btn-decrypt:hover{box-shadow:0 0 30px rgba(0,240,255,0.8);}
         .btn-outline{background:rgba(253,250,244,0.9);color:var(--ink-light);border:1.5px solid rgba(0,240,255,0.5);}
         .btn-outline:hover{box-shadow:0 0 20px rgba(0,240,255,0.5);}
-
-        .status-bar{
-            display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;
-            gap:8px;padding-top:8px;margin-top:4px;
-            border-top:1px dashed rgba(0,240,255,0.4);
-            font-family:var(--font-hand);font-size:0.82rem;color:var(--ink-light);
-        }
+        .status-bar{ display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap; gap:8px;padding-top:8px;margin-top:4px; border-top:1px dashed rgba(0,240,255,0.4); font-family:var(--font-hand);font-size:0.82rem;color:var(--ink-light); }
         .status-dot{width:7px;height:7px;border-radius:50%;display:inline-block;}
         .status-dot.idle{background:#c0b8a8;}
         .status-dot.success{background:#6b8e6b;animation:pulseDot 0.6s ease;}
         .status-dot.error{background:#c43a31;animation:pulseDot 0.6s ease;}
         @keyframes pulseDot{0%,100%{transform:scale(1);}50%{transform:scale(2.2);opacity:0.4;}}
-
-        /* 登录弹窗 */
         .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(10,8,6,0.8);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.35s;backdrop-filter:blur(5px);}
         .modal-overlay.active{opacity:1;pointer-events:auto;}
         .modal-dialog{background:var(--cream);border-radius:12px;padding:28px 24px 20px;width:90%;max-width:400px;box-shadow:0 0 40px rgba(0,240,255,0.6);position:relative;text-align:center;transform:translateY(20px);transition:transform 0.35s;border:1px solid rgba(0,240,255,0.5);}
         .modal-overlay.active .modal-dialog{transform:translateY(0);}
         .modal-dialog h3{font-family:var(--font-brush);font-size:1.6rem;color:var(--ink);margin-bottom:16px;}
         .modal-dialog input{width:100%;padding:10px 14px;margin:8px 0;border:1.5px solid rgba(0,240,255,0.5);border-radius:20px;font-family:var(--font-body);font-size:0.9rem;background:rgba(255,252,247,0.9);color:var(--ink);outline:none;}
-
-        /* Markdown面板 */
         .md-panel-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(10,8,6,0.8);z-index:900;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.4s;backdrop-filter:blur(5px);}
         .md-panel-overlay.active{opacity:1;pointer-events:auto;}
         .md-panel{background:#fff;border-radius:16px;width:95%;max-width:1100px;height:85vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 0 50px rgba(0,240,255,0.5);}
@@ -231,7 +86,6 @@
         .md-editor,.md-preview{flex:1;overflow-y:auto;padding:20px;}
         .md-editor{border-right:1px solid #eef2f6;}
         .md-editor textarea{width:100%;height:100%;border:none;resize:none;font-family:var(--font-mono);font-size:14px;line-height:1.8;background:transparent;color:#1e293b;outline:none;}
-
         .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#1e293b;color:white;padding:10px 24px;border-radius:25px;z-index:2000;opacity:0;pointer-events:none;transition:all 0.35s;box-shadow:0 0 20px rgba(0,240,255,0.5);}
         .toast.show{opacity:1;transform:translateX(-50%) translateY(6px);}
     </style>
@@ -247,7 +101,7 @@
     <div class="scroll-inner">
         <div class="seal-stamp top-right">加密</div><div class="seal-stamp bottom-left">解密</div>
         <div class="header-bar">
-            <div class="app-title-group"><div class="app-title-icon">🔐</div><div><div class="app-title">墨韵·科技卷轴</div><div class="app-subtitle">— 五层古法 · AES-GCM · Markdown —</div></div></div>
+            <div class="app-title-group"><div class="app-title-icon">🔐</div><div><div class="app-title">墨韵·科技卷轴</div><div class="app-subtitle">— 五层古法 · AES-GCM · 多层解密 —</div></div></div>
             <div class="login-area">
                 <span id="userBadge" class="user-badge" style="display:none;"><span class="dot" id="userDot"></span><span id="userNameDisplay"></span></span>
                 <button class="btn-login" id="btnLogin">🔑 登 录</button>
@@ -335,7 +189,6 @@
 <script>
 (function() {
     const API_BASE = 'https://myzlm.serveousercontent.com';
-    // DOM元素
     const inputArea = document.getElementById('inputArea');
     const outputArea = document.getElementById('outputArea');
     const keyLevelSelect = document.getElementById('keyLevel');
@@ -354,7 +207,6 @@
     const statusText = document.getElementById('statusText');
     const timeDisplay = document.getElementById('timeDisplay');
     const toast = document.getElementById('toast');
-
     const btnLogin = document.getElementById('btnLogin');
     const btnLogout = document.getElementById('btnLogout');
     const userBadge = document.getElementById('userBadge');
@@ -372,21 +224,18 @@
     const newPassword = document.getElementById('newPassword');
     const pwdError = document.getElementById('pwdError');
     const btnPwdSubmit = document.getElementById('btnPwdSubmit');
-
     const mdPanelOverlay = document.getElementById('mdPanelOverlay');
     const mdEditorArea = document.getElementById('mdEditorArea');
     const mdPreview = document.getElementById('mdPreview');
     const btnMdClose = document.getElementById('btnMdClose');
     const btnMdImport = document.getElementById('btnMdImport');
     const btnMdEncrypt = document.getElementById('btnMdEncrypt');
-
     const fxContainer = document.getElementById('fxContainer');
     const fallingInks = document.getElementById('fallingInks');
 
     let currentUser = null;
     let isChangePwdMode = false;
 
-    // 密码表（不变）
     const ms_encrypt = { ' ': "*-***", '1': "*----", '2': "**---", '3': "***--", '4': "****-", '5': "*****", '6': "-****", '7': "--***", '8': "---**", '9': "----*", '0': "-----", '￥': "--**-", '\n': "-*--*", '-': "-*---" };
     const jw_encrypt = { ' ': "  ", 'a': "21", 'b': "22", 'c': "23", 'd': "31", 'e': "32", 'f': "33", 'g': "41", 'h': "42", 'i': "43", 'j': "51", 'k': "52", 'l': "53", 'm': "61", 'n': "62", 'o': "63", 'p': "71", 'q': "72", 'r': "73", 's': "74", 't': "81", 'u': "82", 'v': "83", 'w': "91", 'x': "92", 'y': "93", 'z': "94", '1': "11", '2': "12", '3': "13", '4': "14", '5': "15", '6': "16", '7': "17", '8': "18", '9': "19", '0': "10", ',': "95", '.': "96", '?': "97", '!': "98", '\'': "00", '\"': "01", '+': "02", '-': "04", '*': "05", '/': "06", '=': "07", '(': "08", ')': "09", "@": "99", '%': "84", ':': "85", ';': "86", '<': "87", '>': "88", '#': "89", '$': "75", '^': "76", '&': "77", '`': "78", '~': "79", '[': "64", ']': "65", '{': "66", '}': "67", '|': "68", '_': "69", '\\': "54", '￥': "03", '\n': "0 ", '【': "20", '】': "30", '；': "40", '：': "50", '‘': "60", '“': "70", '、': "80", '，': "90", '。': "0-", '？': "1-", '《': "2-", '》': "3-", '·': "4-", '（': "5-", '）': "6-", '！': '7-', '…': '8-' };
     const dn_encrypt = { ' ': ' ', 'q': 'a', 'w': 'b', 'e': 'c', 'r': 'd', 't': 'e', 'y': 'f', 'u': 'g', 'i': 'h', 'o': 'i', 'p': 'j', 'a': 'k', 's': 'l', 'd': 'm', 'f': 'n', 'g': 'o', 'h': 'p', 'j': 'q', 'k': 'r', 'l': 's', 'z': 't', 'x': 'u', 'c': 'v', 'v': 'w', 'b': 'x', 'n': 'y', 'm': 'z', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6', '7': '7', '8': '8', '9': '9', '0': '0', ',': ',', '.': '.', '?': '?', '!': '!', '\'': '\'', '\"': '\"', '+': '+', '-': '-', '*': '*', '/': '/', '=': '=', '(': '(', ')': ')', '@': '@', '%': '%', ':': ':', ';': ';', '<': '<', '>': '>', '#': '#', '$': '$', '^': '^', '&': '&', '`': '`', '~': '~', '[': '[', ']': ']', '{': '{', '}': '}', '|': '|', '_': '_', '\\': '\\', '￥': '￥', '\n': '\n', '【': '】', '】': '】', '；': '；', '：': '：', '’': '‘', '”': '“', '、': '、', '，': '，', '。': '。', '？': '？', '《': '《', '》': '》', '·': '·', '（': '（', '）': '）', '！': '！', '…': '…' };
@@ -466,7 +315,6 @@
         if (!text.trim()) { showToast('请先挥毫落墨', 'warn'); return; }
         if (!isKeyLevelAllowed(keyLevelSelect.value)) { showToast('使用中级/高级密钥需先登录', 'warn'); return; }
         setStatus('idle', '加密中…');
-        const start = performance.now();
         try {
             let result;
             const choice = keyLevelSelect.value;
@@ -480,33 +328,46 @@
                 result = encryptLayer5(bytesToHex(randomKey)) + "|" + bytesToHex(cipherBin);
             }
             outputArea.value = result;
-            timeDisplay.textContent = `耗时: ${(performance.now()-start).toFixed(1)}ms | 密文长度: ${result.length}`;
+            timeDisplay.textContent = `密文长度: ${result.length}`;
             setStatus('success', '加密成功 ✓');
             showToast('🔒 加密已成', 'info');
         } catch(e) { setStatus('error', '加密失败'); showToast(e.message, 'err'); }
     }
 
+    // ★ 核心修复：支持多层解密
     async function decrypt() {
-        const data = inputArea.value.trim();
+        let data = inputArea.value.trim();
         if (!data) { showToast('请先放入密文', 'warn'); return; }
         setStatus('idle', '解密中…');
         const start = performance.now();
         try {
-            let plain;
-            if (data.includes('|')) {
-                const [left, hexCipher] = data.split('|');
-                const keyHex = decryptLayer5(left);
-                const randomKey = hexToBytes(keyHex);
-                if (![16,24,32].includes(randomKey.length)) throw new Error('密钥长度无效');
-                if (randomKey.length===24 && !(await checkAES192Support())) { showToast('浏览器不支持AES-192', 'err'); return; }
-                const innerBytes = await aesGcmDecrypt(hexToBytes(hexCipher), randomKey);
-                plain = decryptLayer5(utf8BytesToString(innerBytes));
-            } else plain = decryptLayer5(data);
+            // 循环剥离AES层
+            while (data.includes('|')) {
+                const sepIdx = data.indexOf('|');
+                const left = data.substring(0, sepIdx);
+                const right = data.substring(sepIdx + 1);
+                try {
+                    const keyHex = decryptLayer5(left);
+                    const keyBytes = hexToBytes(keyHex);
+                    if (![16,24,32].includes(keyBytes.length)) break;
+                    if (keyBytes.length === 24 && !(await checkAES192Support())) {
+                        showToast('浏览器不支持AES-192解密', 'err');
+                        return;
+                    }
+                    const innerBytes = await aesGcmDecrypt(hexToBytes(right), keyBytes);
+                    data = utf8BytesToString(innerBytes);
+                } catch { break; }
+            }
+            // 最后用古典解密还原原文
+            const plain = decryptLayer5(data);
             outputArea.value = plain;
             timeDisplay.textContent = `耗时: ${(performance.now()-start).toFixed(1)}ms | 明文长度: ${plain.length}`;
             setStatus('success', '解密成功 ✓');
             showToast('🔓 解密已成', 'info');
-        } catch(e) { setStatus('error', '解密失败'); showToast(e.message, 'err'); }
+        } catch(e) {
+            setStatus('error', '解密失败');
+            showToast('解密失败: '+e.message, 'err');
+        }
     }
 
     function clearAll(){ inputArea.value=''; outputArea.value=''; updateCharCount(); setStatus('idle','静候墨韵'); }
@@ -516,9 +377,9 @@
     fileInput.addEventListener('change', e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=ev=>{ inputArea.value=ev.target.result; updateCharCount(); }; r.readAsText(f); });
     function updateCharCount(){ charCount.textContent='字数: '+inputArea.value.length; }
     function setStatus(type,text){ statusDot.className='status-dot '+type; statusText.textContent=text; }
-
-    // 登录逻辑
     function showToast(msg,type='info'){ toast.textContent=msg; toast.className='toast '+type+' show'; setTimeout(()=>toast.className='toast',2400); }
+
+    // 登录逻辑（保持不变）
     async function apiFetch(path,opt={}){ const res=await fetch(API_BASE+path,{...opt,credentials:'include',headers:{'Content-Type':'application/json',...opt.headers}}); const data=await res.json().catch(()=>({})); if(!res.ok) throw new Error(data.error||'请求失败'); return data; }
     async function checkLoginStatus(){ try{ const d=await apiFetch('/api/me'); if(d&&d.username){ currentUser=d; }else{ currentUser=null; } }catch(e){ currentUser=null; } finally{ updateLoginUI(); } }
     function updateLoginUI(){
@@ -545,7 +406,7 @@
     });
     loginModal.addEventListener('click', e=>{ if(e.target===loginModal) closeLoginModal(); });
 
-    // Markdown
+    // Markdown 编辑器
     mermaid.initialize({startOnLoad:false, theme:'default'});
     const renderer = new marked.Renderer();
     renderer.code = (code,lang)=>{ if(lang==='mermaid') return `<pre class="mermaid">${code}</pre>`; const h=lang&&hljs.getLanguage(lang)?hljs.highlight(code,{language:lang,ignoreIllegals:true}).value:hljs.highlightAuto(code).value; return `<pre><code class="hljs">${h}</code></pre>`; };
@@ -560,54 +421,25 @@
         inputArea.value=mdEditorArea.value; updateCharCount(); mdPanelOverlay.classList.remove('active'); await encrypt();
     });
 
-    // 科技点击特效
+    // 特效
     function createClickFX(x, y) {
-        // 能量环
         const ring = document.createElement('div');
         ring.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:0;height:0;border-radius:50%;border:2px solid rgba(0,240,255,0.8);transform:translate(-50%,-50%);animation:ringExpand 0.8s ease-out forwards;pointer-events:none;`;
-        fxContainer.appendChild(ring);
-        ring.addEventListener('animationend', ()=>ring.remove());
-
-        // 粒子
+        fxContainer.appendChild(ring); ring.addEventListener('animationend', ()=>ring.remove());
         for(let i=0;i<6;i++){
             const particle = document.createElement('div');
             const angle = Math.random()*Math.PI*2;
             const dist = 40+Math.random()*60;
-            const size = 2+Math.random()*3;
-            particle.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:${size}px;height:${size}px;background:${Math.random()>0.5?'#00f0ff':'#ff00aa'};border-radius:50%;transform:translate(-50%,-50%);animation:particleBurst 0.7s ease-out forwards;--dx:${Math.cos(angle)*dist}px;--dy:${Math.sin(angle)*dist}px;`;
-            fxContainer.appendChild(particle);
-            particle.addEventListener('animationend', ()=>particle.remove());
+            particle.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:${2+Math.random()*3}px;height:${2+Math.random()*3}px;background:${Math.random()>0.5?'#00f0ff':'#ff00aa'};border-radius:50%;transform:translate(-50%,-50%);animation:particleBurst 0.7s ease-out forwards;--dx:${Math.cos(angle)*dist}px;--dy:${Math.sin(angle)*dist}px;`;
+            fxContainer.appendChild(particle); particle.addEventListener('animationend', ()=>particle.remove());
         }
     }
-
     const styleSheet = document.createElement('style');
-    styleSheet.textContent = `
-        @keyframes ringExpand {
-            0% { width:0; height:0; opacity:1; }
-            100% { width:120px; height:120px; opacity:0; }
-        }
-        @keyframes particleBurst {
-            0% { transform: translate(-50%,-50%) scale(1); opacity:1; }
-            100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0); opacity:0; }
-        }
-    `;
+    styleSheet.textContent = `@keyframes ringExpand{0%{width:0;height:0;opacity:1}100%{width:120px;height:120px;opacity:0}}@keyframes particleBurst{0%{transform:translate(-50%,-50%) scale(1);opacity:1}100%{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(0);opacity:0}}`;
     document.head.appendChild(styleSheet);
+    document.addEventListener('click', (e) => createClickFX(e.clientX, e.clientY));
+    setInterval(()=>{ if(fallingInks.children.length<12){ const p=document.createElement('div'); p.className='ink-particle'; p.style.width=(Math.random()*5+2)+'px'; p.style.left=Math.random()*100+'%'; p.style.animationDuration=Math.random()*8+6+'s'; fallingInks.appendChild(p); p.addEventListener('animationend',()=>p.remove()); } }, 900);
 
-    document.addEventListener('click', (e) => {
-        createClickFX(e.clientX, e.clientY);
-        // 保留旧涟漪
-        const r = document.createElement('div');
-        r.className = 'ripple-ring';
-        r.style.left = e.clientX+'px';
-        r.style.top = e.clientY+'px';
-        document.getElementById('rippleContainer')?.appendChild(r);
-        setTimeout(()=>r.remove(), 1200);
-    });
-
-    // 飘落墨屑
-    setInterval(()=>{ if(fallingInks.children.length<12){ const p=document.createElement('div'); p.className='ink-particle'; p.style.width=(Math.random()*5+2)+'px'; p.style.height=p.style.width; p.style.left=Math.random()*100+'%'; p.style.animationDuration=Math.random()*8+6+'s'; fallingInks.appendChild(p); p.addEventListener('animationend',()=>p.remove()); } }, 900);
-
-    // 初始化
     btnEncrypt.addEventListener('click', encrypt);
     btnDecrypt.addEventListener('click', decrypt);
     btnClear.addEventListener('click', clearAll);
