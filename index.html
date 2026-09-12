@@ -6,6 +6,7 @@
     <title>墨韵·科技卷轴 | 密码加解密</title>
     <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Long+Cang&family=ZCOOL+XiaoWei&family=Inter&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.8/dist/purify.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="hljs-style">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.16.9/katex.min.css">
@@ -13,140 +14,578 @@
     <script src="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
     <style>
-        :root { --paper: #f5efe0; --ink: #2c1f14; --ink-light: #5a3e2b; --vermillion: #b5342e; --gold: #a67c3c; --jade: #6b8e6b; --cream: #faf5eb; --neon-cyan: #00f0ff; --neon-magenta: #ff00aa; --shadow-ink: rgba(44,31,20,0.2); --font-brush: 'Ma Shan Zheng', 'STKaiti', 'KaiTi', '楷体', serif; --font-hand: 'Long Cang', 'STKaiti', 'KaiTi', '楷体', cursive; --font-body: 'ZCOOL XiaoWei', 'STSong', 'SimSun', '宋体', serif; --font-mono: 'JetBrains Mono', 'Fira Code', monospace; --transition-ink: 0.3s cubic-bezier(0.25,0.46,0.45,0.94); }
+        :root {
+            --paper: #f5efe0;
+            --ink: #2c1f14;
+            --ink-light: #5a3e2b;
+            --vermillion: #b5342e;
+            --gold: #a67c3c;
+            --jade: #6b8e6b;
+            --cream: #faf5eb;
+            --neon-cyan: #00f0ff;
+            --neon-magenta: #ff00aa;
+            --shadow-ink: rgba(44,31,20,0.2);
+            --font-brush: 'Ma Shan Zheng', 'STKaiti', 'KaiTi', '楷体', serif;
+            --font-hand: 'Long Cang', 'STKaiti', 'KaiTi', '楷体', cursive;
+            --font-body: 'ZCOOL XiaoWei', 'STSong', 'SimSun', '宋体', serif;
+            --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+            --transition-ink: 0.3s cubic-bezier(0.25,0.46,0.45,0.94);
+        }
         * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family: var(--font-body); background: #0a0806; background-image: url("data:image/svg+xml,%3Csvg width='400' height='400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"), repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,240,255,0.02) 2px, rgba(0,240,255,0.02) 4px), radial-gradient(ellipse at 30% 20%, rgba(0,240,255,0.05) 0%, transparent 60%), radial-gradient(ellipse at 70% 80%, rgba(255,0,170,0.05) 0%, transparent 60%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; color: var(--ink); overflow-x: hidden; position: relative; }
-        .scanlines { position: fixed; top:0; left:0; width:100%; height:100%; pointer-events: none; z-index:1; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,240,255,0.03) 2px, rgba(0,240,255,0.03) 4px); animation: scanMove 8s linear infinite; }
+
+        /* ===== 全局滚动条美化 ===== */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(44,31,20,0.08); border-radius: 8px; }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #a67c3c, #8b6428);
+            border-radius: 8px;
+            border: 1px solid rgba(0,240,255,0.3);
+            box-shadow: 0 0 8px rgba(0,240,255,0.3);
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #c49a52, #a67c3c);
+            box-shadow: 0 0 12px rgba(0,240,255,0.6);
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: #0a0806;
+            background-image:
+                url("data:image/svg+xml,%3Csvg width='400' height='400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,240,255,0.02) 2px, rgba(0,240,255,0.02) 4px),
+                radial-gradient(ellipse at 30% 20%, rgba(0,240,255,0.05) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 80%, rgba(255,0,170,0.05) 0%, transparent 60%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: var(--ink);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .scanlines {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            pointer-events: none; z-index:1;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,240,255,0.03) 2px, rgba(0,240,255,0.03) 4px);
+            animation: scanMove 8s linear infinite;
+        }
         @keyframes scanMove { 0%{ background-position:0 0; } 100%{ background-position:0 40px; } }
-        .ink-wash-layer{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden;}
-        .ink-wash-blob{position:absolute;border-radius:50%;filter:blur(80px);opacity:0.06;animation:inkDrift 18s ease-in-out infinite;}
-        .ink-wash-blob:nth-child(1){width:350px;height:350px;background:#3a2a1a;top:10%;left:5%;animation-duration:20s;}
-        .ink-wash-blob:nth-child(2){width:280px;height:280px;background:#5a3a20;top:55%;right:8%;animation-delay:-7s;animation-duration:22s;opacity:0.05;}
-        .ink-wash-blob:nth-child(3){width:400px;height:400px;background:#2c1f14;bottom:-5%;left:30%;animation-delay:-13s;animation-duration:25s;opacity:0.04;}
-        .ink-wash-blob:nth-child(4){width:220px;height:220px;background:#4a2a18;top:30%;right:20%;animation-delay:-3s;animation-duration:19s;opacity:0.055;}
-        @keyframes inkDrift{0%,100%{transform:translate(0,0) scale(1);}15%{transform:translate(60px,-30px) scale(1.12);}30%{transform:translate(-40px,50px) scale(0.92);}45%{transform:translate(25px,-55px) scale(1.08);}60%{transform:translate(-70px,-20px) scale(0.95);}75%{transform:translate(50px,40px) scale(1.05);}90%{transform:translate(-20px,-60px) scale(0.9);}}
-        .falling-inks{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;}
-        .ink-particle{position:absolute;top:-30px;border-radius:50%;background:rgba(30,18,8,0.7);animation:inkFall linear forwards;}
-        @keyframes inkFall{0%{transform:translateY(-30px) rotate(0deg) scale(1);opacity:0.75;}60%{opacity:0.5;}100%{transform:translateY(105vh) rotate(720deg) scale(0.3);opacity:0;}}
-        .scroll-container { position:relative; z-index:10; width:100%; max-width:980px; background: rgba(250,245,235,0.9); backdrop-filter: blur(10px); border-radius: 4px; box-shadow: 0 0 30px rgba(0,240,255,0.3), 0 0 60px rgba(255,0,170,0.2), 0 8px 50px rgba(0,0,0,0.5); border: 1px solid rgba(0,240,255,0.4); padding: 28px 30px 24px; margin: 20px 0; overflow: visible; animation: borderGlow 4s ease-in-out infinite alternate; }
-        @keyframes borderGlow { 0% { box-shadow: 0 0 30px rgba(0,240,255,0.4), 0 0 60px rgba(255,0,170,0.2); } 50% { box-shadow: 0 0 40px rgba(0,240,255,0.6), 0 0 80px rgba(255,0,170,0.4); } 100% { box-shadow: 0 0 30px rgba(0,240,255,0.4), 0 0 60px rgba(255,0,170,0.2); } }
-        .axis-rod { position:absolute; left:-8px; right:-8px; height:22px; background: linear-gradient(180deg, #7d4e2b, #9b6b45, #7d4e2b); border-radius:12px; box-shadow: 0 0 20px rgba(0,240,255,0.5), 0 0 40px rgba(0,240,255,0.3); z-index:0; pointer-events:none; }
-        .axis-rod.top{top:-14px;} .axis-rod.bottom{bottom:-14px;}
-        .scroll-inner{position:relative;z-index:5;background:inherit;border-radius:2px;}
-        .seal-stamp { position:absolute; width:70px; height:70px; border:3px solid var(--vermillion); border-radius:50%; display:flex; align-items:center; justify-content:center; color: var(--vermillion); font-family:var(--font-brush); font-size:1.3rem; font-weight:bold; transform:rotate(-12deg); opacity:0.9; pointer-events:none; z-index:25; text-shadow: 0 0 8px rgba(181,52,46,0.8); box-shadow: inset 0 0 12px rgba(181,52,46,0.4), 0 0 20px rgba(0,240,255,0.5); background: rgba(255,255,255,0.1); backdrop-filter: blur(4px); animation: sealPulse 2s ease-in-out infinite; }
-        @keyframes sealPulse { 0%,100% { box-shadow: inset 0 0 12px rgba(181,52,46,0.4), 0 0 20px rgba(0,240,255,0.5); } 50% { box-shadow: inset 0 0 20px rgba(181,52,46,0.7), 0 0 30px rgba(255,0,170,0.6); } }
-        .seal-stamp.top-right{top:-35px;right:-15px;width:65px;height:65px;font-size:1.1rem;transform:rotate(10deg);}
-        .seal-stamp.bottom-left{bottom:-30px;left:-10px;width:60px;height:60px;font-size:0.95rem;transform:rotate(-15deg);}
-        .header-bar { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px; margin-bottom:18px; padding-bottom:14px; border-bottom:2px dashed rgba(0,240,255,0.4); }
-        .app-title-group{display:flex;align-items:center;gap:10px;}
-        .app-title-icon { width:44px; height:44px; background:linear-gradient(135deg, #3a2a1a, #5a3e2b); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.5rem; color:#f5efe0; box-shadow: 0 0 15px rgba(0,240,255,0.6); border:2px solid var(--gold); }
-        .app-title { font-family:var(--font-brush); font-size:2rem; color: var(--ink); letter-spacing:0.06em; text-shadow: 0 0 10px rgba(0,240,255,0.5); }
-        .app-subtitle{font-family:var(--font-hand);font-size:0.85rem;color:var(--ink-light);}
-        .login-area{display:flex;align-items:center;gap:10px;flex-shrink:0;}
-        .user-badge{display:flex;align-items:center;gap:8px;background:rgba(245,239,224,0.8);border:1px solid rgba(0,240,255,0.5);border-radius:25px;padding:6px 14px;font-family:var(--font-hand);color:var(--ink);cursor:default;}
-        /* 角色徽章样式 */
-        .role-badge { font-size: 0.7rem; padding: 2px 10px; border-radius: 20px; margin-left: 5px; font-family: var(--font-body); letter-spacing: 0.1em; }
-        .role-badge.owner { background: rgba(194,58,43,0.15); color: #ff8c7a; border: 1px solid rgba(194,58,43,0.5); text-shadow: 0 0 5px rgba(255,0,0,0.5); }
-        .role-badge.admin { background: rgba(212,168,83,0.15); color: #f0d078; border: 1px solid rgba(212,168,83,0.5); text-shadow: 0 0 5px rgba(255,215,0,0.5); }
-        .role-badge.member { background: rgba(90,143,123,0.15); color: #7ec8a0; border: 1px solid rgba(90,143,123,0.4); text-shadow: 0 0 5px rgba(0,255,127,0.4); }
-        .btn-login,.btn-logout{ font-family:var(--font-brush); font-size:1rem; padding:8px 18px; border-radius:22px; border:1.5px solid var(--gold); background:linear-gradient(180deg, #faf5eb, #f0e6d5); color:var(--ink-light); cursor:pointer; transition:all var(--transition-ink); box-shadow: 0 0 10px rgba(0,240,255,0.3); }
-        .btn-login:hover,.btn-logout:hover{ background:linear-gradient(180deg, #fdf8f2, #f5ebdb); border-color:#00f0ff; box-shadow: 0 0 20px rgba(0,240,255,0.6); }
-        .key-select-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;font-family:var(--font-hand);}
-        .key-select-row select{font-family:var(--font-body);font-size:0.9rem;padding:8px 30px 8px 12px;border-radius:20px;border:1.5px solid rgba(0,240,255,0.5);background:#fdfaf4;color:var(--ink);cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a3e2b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'%3E%3C/path%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;transition:all var(--transition-ink);box-shadow:0 0 10px rgba(0,240,255,0.2);}
-        .key-lock-hint{font-size:0.8rem;color:var(--neon-magenta);margin-left:4px;display:none;text-shadow:0 0 5px var(--neon-magenta);}
-        .section-card{background:rgba(253,250,244,0.8);border:1px solid rgba(0,240,255,0.3);border-radius:8px;padding:16px 18px;margin-bottom:12px;box-shadow:0 0 20px rgba(0,240,255,0.1);}
-        .section-label{font-family:var(--font-brush);font-size:1.1rem;color:var(--ink);margin-bottom:8px;display:flex;align-items:center;gap:8px;}
-        .dot{width:8px;height:8px;border-radius:50%;display:inline-block;}
-        .dot-input{background:var(--vermillion);box-shadow:0 0 8px rgba(181,52,46,0.8);}
-        .dot-output{background:var(--jade);box-shadow:0 0 8px rgba(107,142,107,0.8);}
-        textarea{ width:100%; border:1px solid rgba(0,240,255,0.3); border-radius:6px; padding:14px 16px; font-family:var(--font-mono); font-size:0.88rem; resize:vertical; min-height:110px; max-height:280px; line-height:1.7; outline:none; background:rgba(255,252,247,0.9); color:var(--ink); transition:all var(--transition-ink); box-shadow:inset 0 1px 4px rgba(0,0,0,0.04), 0 0 10px rgba(0,240,255,0.1); }
-        textarea:focus{border-color:rgba(0,240,255,0.8);box-shadow:0 0 20px rgba(0,240,255,0.3);}
-        textarea#outputArea{background:rgba(248,244,236,0.9);}
-        .btn-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:6px 0;}
-        button{ font-family:var(--font-brush); font-size:1rem; padding:10px 22px; border-radius:25px; border:none; cursor:pointer; letter-spacing:0.05em; transition:all var(--transition-ink); white-space:nowrap; position:relative; overflow:hidden; box-shadow:0 0 15px rgba(0,240,255,0.3); }
-        .btn-encrypt{background:linear-gradient(180deg,#d4463c,#b5342e);color:#fdf5e6;box-shadow:0 0 20px rgba(181,52,46,0.6);}
-        .btn-encrypt:hover{box-shadow:0 0 30px rgba(255,0,170,0.8);}
-        .btn-decrypt{background:linear-gradient(180deg,#5a8a5a,#4a704a);color:#fdf5e6;box-shadow:0 0 20px rgba(74,112,74,0.6);}
-        .btn-decrypt:hover{box-shadow:0 0 30px rgba(0,240,255,0.8);}
-        .btn-outline{background:rgba(253,250,244,0.9);color:var(--ink-light);border:1.5px solid rgba(0,240,255,0.5);}
-        .btn-outline:hover{box-shadow:0 0 20px rgba(0,240,255,0.5);}
-        .status-bar{ display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap; gap:8px;padding-top:8px;margin-top:4px; border-top:1px dashed rgba(0,240,255,0.4); font-family:var(--font-hand);font-size:0.82rem;color:var(--ink-light); }
-        .status-dot{width:7px;height:7px;border-radius:50%;display:inline-block;}
-        .status-dot.idle{background:#c0b8a8;}
-        .status-dot.success{background:#6b8e6b;animation:pulseDot 0.6s ease;}
-        .status-dot.error{background:#c43a31;animation:pulseDot 0.6s ease;}
-        @keyframes pulseDot{0%,100%{transform:scale(1);}50%{transform:scale(2.2);opacity:0.4;}}
-        .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(10,8,6,0.8);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.35s;backdrop-filter:blur(5px);}
-        .modal-overlay.active{opacity:1;pointer-events:auto;}
-        .modal-dialog{background:var(--cream);border-radius:12px;padding:28px 24px 20px;width:90%;max-width:400px;box-shadow:0 0 40px rgba(0,240,255,0.6);position:relative;text-align:center;transform:translateY(20px);transition:transform 0.35s;border:1px solid rgba(0,240,255,0.5);}
-        .modal-overlay.active .modal-dialog{transform:translateY(0);}
-        .modal-dialog h3{font-family:var(--font-brush);font-size:1.6rem;color:var(--ink);margin-bottom:16px;}
-        .modal-dialog input{width:100%;padding:10px 14px;margin:8px 0;border:1.5px solid rgba(0,240,255,0.5);border-radius:20px;font-family:var(--font-body);font-size:0.9rem;background:rgba(255,252,247,0.9);color:var(--ink);outline:none;}
-        .md-panel-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(10,8,6,0.8);z-index:900;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.4s;backdrop-filter:blur(5px);}
-        .md-panel-overlay.active{opacity:1;pointer-events:auto;}
-        .md-panel{background:#fff;border-radius:16px;width:95%;max-width:1100px;height:85vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 0 50px rgba(0,240,255,0.5);}
-        .md-panel-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #eef2f6;background:#fafbfc;}
-        .md-panel-body{display:flex;flex:1;overflow:hidden;}
-        .md-editor,.md-preview{flex:1;overflow-y:auto;padding:20px;}
-        .md-editor{border-right:1px solid #eef2f6;}
-        .md-editor textarea{width:100%;height:100%;border:none;resize:none;font-family:var(--font-mono);font-size:14px;line-height:1.8;background:transparent;color:#1e293b;outline:none;}
-        .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#1e293b;color:white;padding:10px 24px;border-radius:25px;z-index:2000;opacity:0;pointer-events:none;transition:all 0.35s;box-shadow:0 0 20px rgba(0,240,255,0.5);}
-        .toast.show{opacity:1;transform:translateX(-50%) translateY(6px);}
+
+        .ink-wash-layer { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; overflow:hidden; }
+        .ink-wash-blob { position:absolute; border-radius:50%; filter:blur(80px); opacity:0.06; animation:inkDrift 18s ease-in-out infinite; }
+        .ink-wash-blob:nth-child(1){ width:350px; height:350px; background:#3a2a1a; top:10%; left:5%; animation-duration:20s; }
+        .ink-wash-blob:nth-child(2){ width:280px; height:280px; background:#5a3a20; top:55%; right:8%; animation-delay:-7s; animation-duration:22s; opacity:0.05; }
+        .ink-wash-blob:nth-child(3){ width:400px; height:400px; background:#2c1f14; bottom:-5%; left:30%; animation-delay:-13s; animation-duration:25s; opacity:0.04; }
+        .ink-wash-blob:nth-child(4){ width:220px; height:220px; background:#4a2a18; top:30%; right:20%; animation-delay:-3s; animation-duration:19s; opacity:0.055; }
+        @keyframes inkDrift {
+            0%,100%{ transform:translate(0,0) scale(1); }
+            15%{ transform:translate(60px,-30px) scale(1.12); }
+            30%{ transform:translate(-40px,50px) scale(0.92); }
+            45%{ transform:translate(25px,-55px) scale(1.08); }
+            60%{ transform:translate(-70px,-20px) scale(0.95); }
+            75%{ transform:translate(50px,40px) scale(1.05); }
+            90%{ transform:translate(-20px,-60px) scale(0.9); }
+        }
+
+        .falling-inks { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:1; }
+        .ink-particle { position:absolute; top:-30px; border-radius:50%; background:rgba(30,18,8,0.7); animation:inkFall linear forwards; }
+        @keyframes inkFall {
+            0%{ transform:translateY(-30px) rotate(0deg) scale(1); opacity:0.75; }
+            60%{ opacity:0.5; }
+            100%{ transform:translateY(105vh) rotate(720deg) scale(0.3); opacity:0; }
+        }
+
+        /* ===== 卷轴容器 ===== */
+        .scroll-container {
+            position:relative; z-index:10;
+            width:100%; max-width:980px;
+            background: rgba(250,245,235,0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 4px;
+            box-shadow:
+                0 0 30px rgba(0,240,255,0.3),
+                0 0 60px rgba(255,0,170,0.2),
+                0 8px 50px rgba(0,0,0,0.5);
+            border: 1px solid rgba(0,240,255,0.4);
+            padding: 28px 30px 24px;
+            margin: 20px 0;
+            overflow: visible;
+            animation: borderGlow 4s ease-in-out infinite alternate;
+        }
+        @keyframes borderGlow {
+            0% { box-shadow: 0 0 30px rgba(0,240,255,0.4), 0 0 60px rgba(255,0,170,0.2); }
+            50% { box-shadow: 0 0 40px rgba(0,240,255,0.6), 0 0 80px rgba(255,0,170,0.4); }
+            100% { box-shadow: 0 0 30px rgba(0,240,255,0.4), 0 0 60px rgba(255,0,170,0.2); }
+        }
+
+        .axis-rod {
+            position:absolute; left:-8px; right:-8px; height:22px;
+            background: linear-gradient(180deg, #7d4e2b, #9b6b45, #7d4e2b);
+            border-radius:12px;
+            box-shadow: 0 0 20px rgba(0,240,255,0.5), 0 0 40px rgba(0,240,255,0.3);
+            z-index:0; pointer-events:none;
+        }
+        .axis-rod.top { top:-14px; }
+        .axis-rod.bottom { bottom:-14px; }
+
+        .scroll-inner { position:relative; z-index:5; background:inherit; border-radius:2px; }
+
+        .seal-stamp {
+            position:absolute; width:70px; height:70px;
+            border:3px solid var(--vermillion); border-radius:50%;
+            display:flex; align-items:center; justify-content:center;
+            color: var(--vermillion); font-family:var(--font-brush); font-size:1.3rem; font-weight:bold;
+            transform:rotate(-12deg); opacity:0.9; pointer-events:none; z-index:25;
+            text-shadow: 0 0 8px rgba(181,52,46,0.8);
+            box-shadow: inset 0 0 12px rgba(181,52,46,0.4), 0 0 20px rgba(0,240,255,0.5);
+            background: rgba(255,255,255,0.1); backdrop-filter: blur(4px);
+            animation: sealPulse 2s ease-in-out infinite;
+        }
+        @keyframes sealPulse {
+            0%,100% { box-shadow: inset 0 0 12px rgba(181,52,46,0.4), 0 0 20px rgba(0,240,255,0.5); }
+            50% { box-shadow: inset 0 0 20px rgba(181,52,46,0.7), 0 0 30px rgba(255,0,170,0.6); }
+        }
+        .seal-stamp.top-right { top:-35px; right:-15px; width:65px; height:65px; font-size:1.1rem; transform:rotate(10deg); }
+        .seal-stamp.bottom-left { bottom:-30px; left:-10px; width:60px; height:60px; font-size:0.95rem; transform:rotate(-15deg); }
+
+        /* ===== 顶栏 ===== */
+        .header-bar {
+            display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap;
+            gap:14px; margin-bottom:18px; padding-bottom:14px;
+            border-bottom:2px dashed rgba(0,240,255,0.4);
+        }
+        .app-title-group { display:flex; align-items:center; gap:10px; }
+        .app-title-icon {
+            width:44px; height:44px;
+            background:linear-gradient(135deg, #3a2a1a, #5a3e2b);
+            border-radius:50%;
+            display:flex; align-items:center; justify-content:center;
+            font-size:1.5rem; color:#f5efe0;
+            box-shadow: 0 0 15px rgba(0,240,255,0.6);
+            border:2px solid var(--gold);
+            animation: iconPulse 3s ease-in-out infinite;
+        }
+        @keyframes iconPulse {
+            0%,100% { box-shadow: 0 0 15px rgba(0,240,255,0.6); }
+            50% { box-shadow: 0 0 25px rgba(255,0,170,0.7); }
+        }
+        .app-title {
+            font-family:var(--font-brush); font-size:2rem; color: var(--ink);
+            letter-spacing:0.06em;
+            text-shadow: 0 0 10px rgba(0,240,255,0.5);
+        }
+        .app-subtitle { font-family:var(--font-hand); font-size:0.85rem; color:var(--ink-light); }
+
+        /* ===== 连接状态指示器 ===== */
+        .conn-status {
+            display:inline-flex; align-items:center; gap:6px;
+            font-family:var(--font-hand); font-size:0.75rem;
+            color:var(--ink-light); opacity:0.7;
+            padding:2px 10px; border-radius:20px;
+            background:rgba(255,255,255,0.4);
+            border:1px solid rgba(0,240,255,0.2);
+        }
+        .conn-dot {
+            width:6px; height:6px; border-radius:50%;
+            background:#c0b8a8;
+            transition: background 0.3s;
+        }
+        .conn-dot.online { background:#6b8e6b; box-shadow: 0 0 6px #6b8e6b; }
+        .conn-dot.offline { background:#c43a31; box-shadow: 0 0 6px #c43a31; }
+        .conn-dot.checking { background:#e0a030; animation: pulseDot 1s infinite; }
+
+        /* ===== 登录区 ===== */
+        .login-area { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+        .user-badge {
+            display:flex; align-items:center; gap:8px;
+            background:rgba(245,239,224,0.8);
+            border:1px solid rgba(0,240,255,0.5);
+            border-radius:25px; padding:6px 14px;
+            font-family:var(--font-hand); color:var(--ink);
+            cursor:default;
+            transition: all 0.3s;
+        }
+        .user-badge:hover { box-shadow: 0 0 15px rgba(0,240,255,0.4); }
+
+        .role-badge {
+            font-size: 0.7rem; padding: 2px 10px;
+            border-radius: 20px; margin-left: 5px;
+            font-family: var(--font-body);
+            letter-spacing: 0.1em;
+        }
+        .role-badge.owner {
+            background: rgba(194,58,43,0.15); color: #ff8c7a;
+            border: 1px solid rgba(194,58,43,0.5);
+            text-shadow: 0 0 5px rgba(255,0,0,0.5);
+        }
+        .role-badge.admin {
+            background: rgba(212,168,83,0.15); color: #f0d078;
+            border: 1px solid rgba(212,168,83,0.5);
+            text-shadow: 0 0 5px rgba(255,215,0,0.5);
+        }
+        .role-badge.member {
+            background: rgba(90,143,123,0.15); color: #7ec8a0;
+            border: 1px solid rgba(90,143,123,0.4);
+            text-shadow: 0 0 5px rgba(0,255,127,0.4);
+        }
+
+        .btn-login, .btn-logout {
+            font-family:var(--font-brush); font-size:1rem;
+            padding:8px 18px; border-radius:22px;
+            border:1.5px solid var(--gold);
+            background:linear-gradient(180deg, #faf5eb, #f0e6d5);
+            color:var(--ink-light); cursor:pointer;
+            transition:all var(--transition-ink);
+            box-shadow: 0 0 10px rgba(0,240,255,0.3);
+            position:relative; overflow:hidden;
+        }
+        .btn-login::before, .btn-logout::before {
+            content:''; position:absolute; top:0; left:-100%; width:100%; height:100%;
+            background: linear-gradient(90deg, transparent, rgba(0,240,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        .btn-login:hover::before, .btn-logout:hover::before { left:100%; }
+        .btn-login:hover, .btn-logout:hover {
+            background:linear-gradient(180deg, #fdf8f2, #f5ebdb);
+            border-color:#00f0ff;
+            box-shadow: 0 0 20px rgba(0,240,255,0.6);
+            transform: translateY(-1px);
+        }
+
+        /* ===== 密钥选择器（升级） ===== */
+        .key-select-row {
+            display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+            margin-bottom:16px; font-family:var(--font-hand);
+            padding: 10px 14px;
+            background: rgba(255,252,247,0.5);
+            border: 1px dashed rgba(0,240,255,0.3);
+            border-radius: 10px;
+        }
+        .key-select-label { display: flex; align-items: center; gap: 6px; }
+        .key-select-row select {
+            font-family:var(--font-body); font-size:0.9rem;
+            padding:8px 34px 8px 14px; border-radius:20px;
+            border:1.5px solid rgba(0,240,255,0.5);
+            background:#fdfaf4; color:var(--ink); cursor:pointer;
+            appearance:none;
+            background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a3e2b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat:no-repeat; background-position:right 10px center;
+            transition:all var(--transition-ink);
+            box-shadow:0 0 10px rgba(0,240,255,0.2);
+            font-weight: 600;
+        }
+        .key-select-row select:focus {
+            outline: none;
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 20px rgba(0,240,255,0.5);
+        }
+        .key-select-row select option { font-weight: normal; padding: 4px 8px; }
+
+        /* 密钥强度指示条 */
+        .key-strength-bar {
+            display: flex; gap: 3px; align-items: center;
+            margin-left: 6px;
+        }
+        .key-strength-seg {
+            width: 18px; height: 6px; border-radius: 3px;
+            background: rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+        .key-strength-seg.active-1 { background: linear-gradient(90deg, #88a890, #6b8e6b); box-shadow: 0 0 6px rgba(107,142,107,0.8); }
+        .key-strength-seg.active-2 { background: linear-gradient(90deg, #e0a030, #c8862a); box-shadow: 0 0 6px rgba(224,160,48,0.8); }
+        .key-strength-seg.active-3 { background: linear-gradient(90deg, #e04030, #b5342e); box-shadow: 0 0 6px rgba(181,52,46,0.9); }
+
+        .key-lock-hint {
+            font-size:0.8rem; color:var(--neon-magenta); margin-left:4px;
+            display:none; text-shadow:0 0 5px var(--neon-magenta);
+        }
+
+        /* ===== Section 卡片 ===== */
+        .section-card {
+            background:rgba(253,250,244,0.8);
+            border:1px solid rgba(0,240,255,0.3);
+            border-radius:8px;
+            padding:16px 18px;
+            margin-bottom:12px;
+            box-shadow:0 0 20px rgba(0,240,255,0.1);
+            transition: all 0.3s;
+        }
+        .section-card:hover {
+            border-color: rgba(0,240,255,0.5);
+            box-shadow: 0 0 28px rgba(0,240,255,0.2);
+        }
+        .section-label {
+            font-family:var(--font-brush); font-size:1.1rem; color:var(--ink);
+            margin-bottom:8px; display:flex; align-items:center; gap:8px;
+        }
+        .dot { width:8px; height:8px; border-radius:50%; display:inline-block; }
+        .dot-input { background:var(--vermillion); box-shadow:0 0 8px rgba(181,52,46,0.8); }
+        .dot-output { background:var(--jade); box-shadow:0 0 8px rgba(107,142,107,0.8); }
+
+        textarea {
+            width:100%; border:1px solid rgba(0,240,255,0.3); border-radius:6px;
+            padding:14px 16px; font-family:var(--font-mono); font-size:0.88rem;
+            resize:vertical; min-height:110px; max-height:280px;
+            line-height:1.7; outline:none;
+            background:rgba(255,252,247,0.9); color:var(--ink);
+            transition:all var(--transition-ink);
+            box-shadow:inset 0 1px 4px rgba(0,0,0,0.04), 0 0 10px rgba(0,240,255,0.1);
+        }
+        textarea:focus { border-color:rgba(0,240,255,0.8); box-shadow:0 0 20px rgba(0,240,255,0.3); }
+        textarea#outputArea { background:rgba(248,244,236,0.9); }
+
+        /* ===== 按钮 ===== */
+        .btn-row { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:6px 0; }
+
+        button {
+            font-family:var(--font-brush); font-size:1rem;
+            padding:10px 22px; border-radius:25px; border:none;
+            cursor:pointer; letter-spacing:0.05em;
+            transition:all var(--transition-ink);
+            white-space:nowrap; position:relative; overflow:hidden;
+            box-shadow:0 0 15px rgba(0,240,255,0.3);
+        }
+        button::after {
+            content:''; position:absolute; top:50%; left:50%;
+            width:0; height:0; border-radius:50%;
+            background: rgba(255,255,255,0.35);
+            transform: translate(-50%,-50%);
+            transition: width 0.5s, height 0.5s;
+        }
+        button:active::after { width: 300px; height: 300px; transition: width 0s, height 0s; }
+
+        .btn-encrypt { background:linear-gradient(180deg,#d4463c,#b5342e); color:#fdf5e6; box-shadow:0 0 20px rgba(181,52,46,0.6); }
+        .btn-encrypt:hover:not(:disabled) { box-shadow:0 0 30px rgba(255,0,170,0.8); transform: translateY(-2px); }
+        .btn-decrypt { background:linear-gradient(180deg,#5a8a5a,#4a704a); color:#fdf5e6; box-shadow:0 0 20px rgba(74,112,74,0.6); }
+        .btn-decrypt:hover:not(:disabled) { box-shadow:0 0 30px rgba(0,240,255,0.8); transform: translateY(-2px); }
+        .btn-outline { background:rgba(253,250,244,0.9); color:var(--ink-light); border:1.5px solid rgba(0,240,255,0.5); }
+        .btn-outline:hover { box-shadow:0 0 20px rgba(0,240,255,0.5); }
+
+        button:disabled {
+            opacity: 0.5; cursor: not-allowed; transform: none !important;
+        }
+
+        /* 加载中 */
+        .btn-loading { position: relative; padding-right: 42px; }
+        .btn-loading::before {
+            content: ''; position: absolute; right: 16px; top: 50%;
+            width: 14px; height: 14px; margin-top: -7px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ===== 状态栏 ===== */
+        .status-bar {
+            display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap;
+            gap:8px; padding-top:8px; margin-top:4px;
+            border-top:1px dashed rgba(0,240,255,0.4);
+            font-family:var(--font-hand); font-size:0.82rem; color:var(--ink-light);
+        }
+        .status-dot { width:7px; height:7px; border-radius:50%; display:inline-block; }
+        .status-dot.idle { background:#c0b8a8; }
+        .status-dot.success { background:#6b8e6b; animation:pulseDot 0.6s ease; }
+        .status-dot.error { background:#c43a31; animation:pulseDot 0.6s ease; }
+        .status-dot.loading { background:#e0a030; animation: pulseDot 1s infinite; }
+        @keyframes pulseDot { 0%,100%{ transform:scale(1); } 50%{ transform:scale(2.2); opacity:0.4; } }
+
+        /* ===== 模态框 ===== */
+        .modal-overlay {
+            position:fixed; top:0; left:0; width:100%; height:100%;
+            background:rgba(10,8,6,0.8); z-index:1000;
+            display:flex; align-items:center; justify-content:center;
+            opacity:0; pointer-events:none; transition:opacity 0.35s;
+            backdrop-filter:blur(5px);
+        }
+        .modal-overlay.active { opacity:1; pointer-events:auto; }
+        .modal-dialog {
+            background:var(--cream); border-radius:12px;
+            padding:28px 24px 20px; width:90%; max-width:400px;
+            box-shadow:0 0 40px rgba(0,240,255,0.6);
+            position:relative; text-align:center;
+            transform:translateY(20px); transition:transform 0.35s;
+            border:1px solid rgba(0,240,255,0.5);
+        }
+        .modal-overlay.active .modal-dialog { transform:translateY(0); }
+        .modal-dialog h3 {
+            font-family:var(--font-brush); font-size:1.6rem;
+            color:var(--ink); margin-bottom:16px;
+        }
+        .modal-dialog input {
+            width:100%; padding:10px 14px; margin:8px 0;
+            border:1.5px solid rgba(0,240,255,0.5); border-radius:20px;
+            font-family:var(--font-body); font-size:0.9rem;
+            background:rgba(255,252,247,0.9); color:var(--ink); outline:none;
+            transition: all 0.3s;
+        }
+        .modal-dialog input:focus {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 15px rgba(0,240,255,0.4);
+        }
+
+        /* ===== Markdown 面板 ===== */
+        .md-panel-overlay {
+            position:fixed; top:0; left:0; width:100%; height:100%;
+            background:rgba(10,8,6,0.8); z-index:900;
+            display:flex; align-items:center; justify-content:center;
+            opacity:0; pointer-events:none; transition:opacity 0.4s;
+            backdrop-filter:blur(5px);
+        }
+        .md-panel-overlay.active { opacity:1; pointer-events:auto; }
+        .md-panel {
+            background:#fff; border-radius:16px;
+            width:95%; max-width:1100px; height:85vh;
+            display:flex; flex-direction:column; overflow:hidden;
+            box-shadow:0 0 50px rgba(0,240,255,0.5);
+        }
+        .md-panel-header {
+            display:flex; align-items:center; justify-content:space-between;
+            padding:14px 20px; border-bottom:1px solid #eef2f6;
+            background: linear-gradient(180deg, #fafbfc, #f5f7fa);
+        }
+        .md-panel-header h2 {
+            font-family: var(--font-brush);
+            color: var(--ink);
+            font-size: 1.3rem;
+        }
+        .md-panel-body { display:flex; flex:1; overflow:hidden; }
+        .md-editor, .md-preview { flex:1; overflow-y:auto; padding:20px; }
+        .md-editor { border-right:1px solid #eef2f6; }
+        .md-editor textarea {
+            width:100%; height:100%; border:none; resize:none;
+            font-family:var(--font-mono); font-size:14px; line-height:1.8;
+            background:transparent; color:#1e293b; outline:none;
+        }
+
+        /* ===== Toast 队列 ===== */
+        .toast-container {
+            position: fixed; top: 20px; left: 50%;
+            transform: translateX(-50%);
+            z-index: 2000;
+            display: flex; flex-direction: column;
+            gap: 8px; align-items: center;
+            pointer-events: none;
+        }
+        .toast {
+            background:#1e293b; color:white;
+            padding:10px 24px; border-radius:25px;
+            opacity: 0; transform: translateY(-12px) scale(0.95);
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: auto;
+            font-family: var(--font-body);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.4), 0 0 20px rgba(0,240,255,0.5);
+            display: flex; align-items: center; gap: 8px;
+            max-width: 90vw;
+        }
+        .toast.show { opacity: 1; transform: translateY(0) scale(1); }
+        .toast.success { background: linear-gradient(135deg, #2a5a3a, #1a4a2a); }
+        .toast.error { background: linear-gradient(135deg, #6a2018, #4a1410); }
+        .toast.warn { background: linear-gradient(135deg, #7a5a10, #5a4010); }
+        .toast.info { background: linear-gradient(135deg, #1e293b, #0f172a); }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 640px) {
+            .scroll-container { padding: 20px 16px 18px; }
+            .app-title { font-size: 1.5rem; }
+            .seal-stamp { display: none; }
+            .key-strength-bar { display: none; }
+            button { padding: 9px 16px; font-size: 0.9rem; }
+        }
     </style>
 </head>
 <body>
 <div class="scanlines"></div>
-<div class="ink-wash-layer"><div class="ink-wash-blob"></div><div class="ink-wash-blob"></div><div class="ink-wash-blob"></div><div class="ink-wash-blob"></div></div>
+<div class="ink-wash-layer">
+    <div class="ink-wash-blob"></div><div class="ink-wash-blob"></div>
+    <div class="ink-wash-blob"></div><div class="ink-wash-blob"></div>
+</div>
 <div class="falling-inks" id="fallingInks"></div>
 <div id="fxContainer" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999;"></div>
 
 <div class="scroll-container">
-    <div class="axis-rod top"></div><div class="axis-rod bottom"></div>
+    <div class="axis-rod top"></div>
+    <div class="axis-rod bottom"></div>
     <div class="scroll-inner">
-        <div class="seal-stamp top-right">加密</div><div class="seal-stamp bottom-left">解密</div>
+        <div class="seal-stamp top-right">加密</div>
+        <div class="seal-stamp bottom-left">解密</div>
+
         <div class="header-bar">
-            <div class="app-title-group"><div class="app-title-icon">🔐</div><div><div class="app-title">墨韵·科技卷轴</div><div class="app-subtitle">— 五层古法 · AES-GCM · 新映射 —</div></div></div>
-            <div class="login-area">
-                <span id="userBadge" class="user-badge" style="display:none;">
-                    <span class="dot" id="userDot"></span>
-                    <span id="userNameDisplay"></span>
-                    <span id="userRoleBadge" class="role-badge"></span>
-                </span>
-                <button class="btn-login" id="btnLogin">🔑 登 录</button>
-                <button class="btn-logout btn-sm" id="btnLogout" style="display:none;">🚪 登 出</button>
+            <div class="app-title-group">
+                <div class="app-title-icon">🔐</div>
+                <div>
+                    <div class="app-title">墨韵·科技卷轴</div>
+                    <div class="app-subtitle">— 五层古法 · AES-GCM · 新映射 —</div>
+                </div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+                <div class="login-area">
+                    <span id="userBadge" class="user-badge" style="display:none;">
+                        <span class="dot" id="userDot"></span>
+                        <span id="userNameDisplay"></span>
+                        <span id="userRoleBadge" class="role-badge"></span>
+                    </span>
+                    <button class="btn-login" id="btnLogin">🔑 登 录</button>
+                    <button class="btn-logout" id="btnLogout" style="display:none;">🚪 登 出</button>
+                </div>
+                <div class="conn-status" title="与服务器连接状态">
+                    <span class="conn-dot checking" id="connDot"></span>
+                    <span id="connText">检测中…</span>
+                </div>
             </div>
         </div>
+
+        <!-- 密钥选择（升级） -->
         <div class="key-select-row">
-            <label>🔑 密钥强度：</label>
+            <span class="key-select-label">🔑 密钥强度：</span>
             <select id="keyLevel">
                 <option value="none">不用秘钥：极短</option>
                 <option value="low">低级秘钥：短 (AES-128)</option>
                 <option value="mid">🔒 中级秘钥：长 (AES-192)</option>
                 <option value="high">🔒 超级秘钥：超长 (AES-256)</option>
             </select>
+            <div class="key-strength-bar" id="keyStrengthBar">
+                <span class="key-strength-seg"></span>
+                <span class="key-strength-seg"></span>
+                <span class="key-strength-seg"></span>
+            </div>
             <span id="keyLockHint" class="key-lock-hint">⚠️ 需登录书阁</span>
             <span id="keyWarning" style="color:var(--neon-magenta);font-size:0.8rem;display:none;">浏览器可能不支持AES-192</span>
         </div>
+
+        <!-- 输入 -->
         <div class="section-card">
-            <div class="section-label"><span class="dot dot-input"></span> 落 墨 · 输 入</div>
+            <div class="section-label">
+                <span class="dot dot-input"></span> 落 墨 · 输 入
+            </div>
             <textarea id="inputArea" placeholder="在此挥毫落墨，写下需加密或解密的文辞…"></textarea>
             <div class="btn-row file-btns">
-                <button class="btn-outline btn-sm" id="btnImport">📜 导入TXT</button>
-                <button class="btn-outline btn-sm" id="btnExport">💾 导出输出</button>
-                <button class="btn-outline btn-sm" id="btnMdEditor">🖊️ Markdown 编辑</button>
-                <span style="flex:1;"></span><span id="charCount" style="font-family:var(--font-hand);">字数: 0</span>
+                <button class="btn-outline" id="btnImport">📜 导入TXT</button>
+                <button class="btn-outline" id="btnExport">💾 导出输出</button>
+                <button class="btn-outline" id="btnMdEditor">🖊️ Markdown 编辑</button>
+                <span style="flex:1;"></span>
+                <span id="charCount" style="font-family:var(--font-hand);">字数: 0</span>
             </div>
         </div>
+
         <div class="btn-row" style="justify-content:center;gap:14px;">
             <button class="btn-encrypt" id="btnEncrypt">🔒 加 密</button>
             <button class="btn-decrypt" id="btnDecrypt">🔓 解 密</button>
-            <button class="btn-outline btn-sm" id="btnClear">🗑 清 空</button>
-            <button class="btn-outline btn-sm" id="btnCopy">📋 复制结果</button>
+            <button class="btn-outline" id="btnClear">🗑 清 空</button>
+            <button class="btn-outline" id="btnCopy">📋 复制结果</button>
         </div>
+
+        <!-- 输出 -->
         <div class="section-card">
-            <div class="section-label"><span class="dot dot-output"></span> 回 响 · 输 出</div>
+            <div class="section-label">
+                <span class="dot dot-output"></span> 回 响 · 输 出
+            </div>
             <textarea id="outputArea" placeholder="加密或解密之果将显现于此…" readonly></textarea>
         </div>
+
         <div class="status-bar">
             <span><span class="status-dot idle" id="statusDot"></span> <span id="statusText">静候墨韵</span></span>
             <span id="timeDisplay"></span>
@@ -154,55 +593,64 @@
     </div>
 </div>
 
+<!-- 登录模态框 -->
 <div class="modal-overlay" id="loginModal">
     <div class="modal-dialog">
-        <button class="btn-modal-close" id="btnModalClose" style="position:absolute;top:10px;right:14px;background:none;border:none;font-size:1.4rem;cursor:pointer;">✕</button>
+        <button id="btnModalClose" style="position:absolute;top:10px;right:14px;background:none;border:none;font-size:1.4rem;cursor:pointer;box-shadow:none;">✕</button>
         <h3>🏮 墨韵书阁 · 登录</h3>
         <input type="text" id="loginUsername" placeholder="用户名" autocomplete="username">
         <input type="password" id="loginPassword" placeholder="密码" autocomplete="current-password">
-        <div class="modal-error" id="loginError" style="color:var(--vermillion);"></div>
+        <div id="loginError" style="color:var(--vermillion);min-height:20px;font-size:0.85rem;"></div>
         <div class="btn-row" style="justify-content:center;gap:10px;margin-top:12px;">
-            <button class="btn-encrypt btn-sm" id="btnLoginSubmit">登 入</button>
-            <button class="btn-outline btn-sm" id="btnChangePwd" style="display:none;">修改密码</button>
+            <button class="btn-encrypt" id="btnLoginSubmit">登 入</button>
+            <button class="btn-outline" id="btnChangePwd" style="display:none;">修改密码</button>
         </div>
         <div id="changePwdArea" style="display:none;margin-top:12px;">
-            <input type="password" id="oldPassword" placeholder="旧密码">
-            <input type="password" id="newPassword" placeholder="新密码(至少6位)">
-            <div class="modal-error" id="pwdError" style="color:var(--vermillion);"></div>
-            <button class="btn-encrypt btn-sm" id="btnPwdSubmit">确认修改</button>
+            <input type="password" id="oldPassword" placeholder="旧密码" autocomplete="current-password">
+            <input type="password" id="newPassword" placeholder="新密码(至少6位)" autocomplete="new-password">
+            <div id="pwdError" style="color:var(--vermillion);min-height:20px;font-size:0.85rem;"></div>
+            <button class="btn-encrypt" id="btnPwdSubmit">确认修改</button>
         </div>
     </div>
 </div>
 
+<!-- Markdown 面板 -->
 <div class="md-panel-overlay" id="mdPanelOverlay">
     <div class="md-panel">
         <div class="md-panel-header">
             <h2>🖊️ Markdown 编辑 · 预览</h2>
-            <button class="btn-outline btn-sm" id="btnMdClose">✕ 关闭</button>
+            <button class="btn-outline" id="btnMdClose">✕ 关闭</button>
         </div>
         <div class="md-panel-body">
             <div class="md-editor"><textarea id="mdEditorArea" placeholder="在此书写 Markdown..."></textarea></div>
             <div class="md-preview"><div class="md-preview-content" id="mdPreview"></div></div>
         </div>
-        <div class="md-panel-footer" style="padding:12px 20px;border-top:1px solid #eef2f6;display:flex;gap:10px;justify-content:flex-end;">
-            <button class="btn-outline btn-sm" id="btnMdImport">📥 导入到加密输入</button>
-            <button class="btn-encrypt btn-sm" id="btnMdEncrypt">🔒 直接加密此 Markdown</button>
+        <div style="padding:12px 20px;border-top:1px solid #eef2f6;display:flex;gap:10px;justify-content:flex-end;">
+            <button class="btn-outline" id="btnMdImport">📥 导入到加密输入</button>
+            <button class="btn-encrypt" id="btnMdEncrypt">🔒 直接加密此 Markdown</button>
         </div>
     </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast-container" id="toastContainer"></div>
 <input type="file" id="fileInput" accept=".txt" style="display:none;">
 
 <script>
 (function() {
-     const API_BASE = 'https://myzlm.serveousercontent.com';
-    // DOM元素
+    'use strict';
+
+    const API_BASE = 'https://myzlm.serveousercontent.com';
+
+    // ==================== CSRF ====================
+    let csrfToken = '';
+
+    // ==================== DOM ====================
     const inputArea = document.getElementById('inputArea');
     const outputArea = document.getElementById('outputArea');
     const keyLevelSelect = document.getElementById('keyLevel');
     const keyLockHint = document.getElementById('keyLockHint');
     const keyWarning = document.getElementById('keyWarning');
+    const keyStrengthBar = document.getElementById('keyStrengthBar');
     const btnEncrypt = document.getElementById('btnEncrypt');
     const btnDecrypt = document.getElementById('btnDecrypt');
     const btnClear = document.getElementById('btnClear');
@@ -215,7 +663,7 @@
     const statusDot = document.getElementById('statusDot');
     const statusText = document.getElementById('statusText');
     const timeDisplay = document.getElementById('timeDisplay');
-    const toast = document.getElementById('toast');
+    const toastContainer = document.getElementById('toastContainer');
     const btnLogin = document.getElementById('btnLogin');
     const btnLogout = document.getElementById('btnLogout');
     const userBadge = document.getElementById('userBadge');
@@ -242,11 +690,13 @@
     const btnMdEncrypt = document.getElementById('btnMdEncrypt');
     const fxContainer = document.getElementById('fxContainer');
     const fallingInks = document.getElementById('fallingInks');
+    const connDot = document.getElementById('connDot');
+    const connText = document.getElementById('connText');
 
     let currentUser = null;
     let isChangePwdMode = false;
 
-    // ==================== 修正后的完整映射表 ====================
+    // ==================== 映射表（原样保留） ====================
     const dn_encrypt = {
         ' ': ' ', 'q': 'a', 'w': 'b', 'e': 'c', 'r': 'd', 't': 'e',
         'y': 'f', 'u': 'g', 'i': 'h', 'o': 'i', 'p': 'j', 'a': 'k',
@@ -294,11 +744,14 @@
         '\n': "-*--*", '-': "-*---", '_': "*-**-", '~': "-***-"
     };
 
-    const ms_decrypt = {}; for(const [k,v] of Object.entries(ms_encrypt)) ms_decrypt[v]=k;
-    const jw_decrypt = {}; for(const [k,v] of Object.entries(jw_encrypt)) jw_decrypt[v]=k;
-    const dn_decrypt = {}; for(const [k,v] of Object.entries(dn_encrypt)) dn_decrypt[v]=k;
+    const ms_decrypt = {};
+    for (const [k, v] of Object.entries(ms_encrypt)) ms_decrypt[v] = k;
+    const jw_decrypt = {};
+    for (const [k, v] of Object.entries(jw_encrypt)) jw_decrypt[v] = k;
+    const dn_decrypt = {};
+    for (const [k, v] of Object.entries(dn_encrypt)) dn_decrypt[v] = k;
 
-    // 紧凑编码工具
+    // ==================== 编码工具（原样保留） ====================
     function numberToLetterChar(n){ if(n>=1&&n<=9) return String.fromCharCode(64+n); if(n===0) return 'J'; throw new Error('映射错误'); }
     function letterToNumber(c){ if(c>='A'&&c<='I') return c.charCodeAt(0)-64; if(c==='J') return 0; throw new Error('无效字母'); }
     function compactEncode(symbols){ const r=[]; for(const [s,c] of symbols){ const d=String(c); r.push(s==='*'?d:d.split('').map(x=>numberToLetterChar(parseInt(x))).join('')); } return r.join(''); }
@@ -349,7 +802,7 @@
         return processChineseDecrypt(g.split('').reverse().join(''));
     }
 
-    // AES 加解密
+    // ==================== AES ====================
     async function aesGcmEncrypt(plainBytes, keyBytes){
         const key=await crypto.subtle.importKey('raw', keyBytes, {name:'AES-GCM'}, false, ['encrypt']);
         const nonce=crypto.getRandomValues(new Uint8Array(12));
@@ -372,38 +825,111 @@
     async function checkAES192Support(){ try{ await aesGcmEncrypt(new Uint8Array([1,2,3]), new Uint8Array(24)); return true; }catch(e){ return false; } }
     (async ()=>{ if(!await checkAES192Support()) keyWarning.style.display='inline'; })();
 
+    // ==================== Toast 队列 ====================
+    function showToast(msg, type='info') {
+        const icons = { success: '✅', error: '❌', warn: '⚠️', info: 'ℹ️' };
+        const el = document.createElement('div');
+        el.className = 'toast ' + type;
+        el.innerHTML = '<span>' + (icons[type] || '') + '</span> ' +
+                       '<span></span>';
+        el.lastChild.textContent = msg;
+        toastContainer.appendChild(el);
+        requestAnimationFrame(() => el.classList.add('show'));
+        setTimeout(() => {
+            el.classList.remove('show');
+            setTimeout(() => el.remove(), 400);
+        }, 2600);
+    }
+
+    // ==================== 状态栏 ====================
+    function setStatus(type, text) {
+        statusDot.className = 'status-dot ' + type;
+        statusText.textContent = text;
+    }
+
+    // ==================== 连接状态 ====================
+    function setConnection(state, text) {
+        connDot.className = 'conn-dot ' + state;
+        connText.textContent = text;
+    }
+
+    // ==================== 密钥强度条 ====================
+    function updateKeyStrength(level) {
+        const segs = keyStrengthBar.querySelectorAll('.key-strength-seg');
+        segs.forEach(s => s.className = 'key-strength-seg');
+        let cls = '';
+        if (level === 'low') cls = 'active-1';
+        else if (level === 'mid') cls = 'active-2';
+        else if (level === 'high') cls = 'active-3';
+        if (cls) {
+            const map = { low: 1, mid: 2, high: 3 };
+            for (let i = 0; i < map[level]; i++) segs[i].classList.add(cls);
+        }
+    }
+
+    // ==================== 密钥权限 ====================
     function isKeyLevelAllowed(level) { return (level === 'none' || level === 'low') ? true : !!currentUser; }
-    function updateKeyLevelUI() { keyLockHint.style.display = isKeyLevelAllowed(keyLevelSelect.value) ? 'none' : 'inline'; }
+    function updateKeyLevelUI() {
+        const allowed = isKeyLevelAllowed(keyLevelSelect.value);
+        keyLockHint.style.display = allowed ? 'none' : 'inline';
+        updateKeyStrength(keyLevelSelect.value);
+    }
     keyLevelSelect.addEventListener('change', updateKeyLevelUI);
 
+    // ==================== 加解密 ====================
     async function encrypt() {
         const text = inputArea.value;
         if (!text.trim()) { showToast('请先挥毫落墨', 'warn'); return; }
         if (!isKeyLevelAllowed(keyLevelSelect.value)) { showToast('使用中级/高级密钥需先登录', 'warn'); return; }
-        setStatus('idle', '加密中…');
+
+        btnEncrypt.disabled = true;
+        btnEncrypt.classList.add('btn-loading');
+        const origText = btnEncrypt.textContent;
+        btnEncrypt.textContent = '加密中';
+
+        setStatus('loading', '加密中…');
+        const start = performance.now();
         try {
             let result;
             const choice = keyLevelSelect.value;
-            if (choice === 'none') result = encryptLayer5(text);
-            else {
-                const keyLen = choice==='low'?16: choice==='mid'?24:32;
-                if (keyLen===24 && !(await checkAES192Support())) { showToast('浏览器不支持AES-192', 'err'); return; }
+            if (choice === 'none') {
+                result = encryptLayer5(text);
+            } else {
+                const keyLen = choice === 'low' ? 16 : choice === 'mid' ? 24 : 32;
+                if (keyLen === 24 && !(await checkAES192Support())) {
+                    showToast('浏览器不支持AES-192', 'error');
+                    return;
+                }
                 const inner = encryptLayer5(text);
                 const randomKey = crypto.getRandomValues(new Uint8Array(keyLen));
                 const cipherBin = await aesGcmEncrypt(stringToUtf8Bytes(inner), randomKey);
                 result = encryptLayer5(bytesToHex(randomKey)) + "|" + bytesToHex(cipherBin);
             }
             outputArea.value = result;
-            timeDisplay.textContent = `密文长度: ${result.length}`;
+            const elapsed = (performance.now() - start).toFixed(1);
+            timeDisplay.textContent = `密文长度: ${result.length} | 耗时: ${elapsed}ms`;
             setStatus('success', '加密成功 ✓');
-            showToast('🔒 加密已成', 'info');
-        } catch(e) { setStatus('error', '加密失败'); showToast(e.message, 'err'); }
+            showToast('🔒 加密已成', 'success');
+        } catch (e) {
+            setStatus('error', '加密失败');
+            showToast(e.message || '加密失败', 'error');
+        } finally {
+            btnEncrypt.disabled = false;
+            btnEncrypt.classList.remove('btn-loading');
+            btnEncrypt.textContent = origText;
+        }
     }
 
     async function decrypt() {
         let data = inputArea.value.trim();
         if (!data) { showToast('请先放入密文', 'warn'); return; }
-        setStatus('idle', '解密中…');
+
+        btnDecrypt.disabled = true;
+        btnDecrypt.classList.add('btn-loading');
+        const origText = btnDecrypt.textContent;
+        btnDecrypt.textContent = '解密中';
+
+        setStatus('loading', '解密中…');
         const start = performance.now();
         try {
             while (data.includes('|')) {
@@ -413,7 +939,7 @@
                 try {
                     const keyHex = decryptLayer5(left);
                     const keyBytes = hexToBytes(keyHex);
-                    if (![16,24,32].includes(keyBytes.length)) break;
+                    if (![16, 24, 32].includes(keyBytes.length)) break;
                     if ((keyBytes.length === 24 || keyBytes.length === 32) && !currentUser) {
                         showToast('🔒 权限不足，请先登录墨韵书阁', 'warn');
                         outputArea.value = '';
@@ -421,7 +947,7 @@
                         return;
                     }
                     if (keyBytes.length === 24 && !(await checkAES192Support())) {
-                        showToast('浏览器不支持AES-192解密', 'err');
+                        showToast('浏览器不支持AES-192解密', 'error');
                         return;
                     }
                     const innerBytes = await aesGcmDecrypt(hexToBytes(right), keyBytes);
@@ -430,36 +956,123 @@
             }
             const plain = decryptLayer5(data);
             outputArea.value = plain;
-            timeDisplay.textContent = `耗时: ${(performance.now()-start).toFixed(1)}ms | 明文长度: ${plain.length}`;
+            const elapsed = (performance.now() - start).toFixed(1);
+            timeDisplay.textContent = `耗时: ${elapsed}ms | 明文长度: ${plain.length}`;
             setStatus('success', '解密成功 ✓');
-            showToast('🔓 解密已成', 'info');
-        } catch(e) {
+            showToast('🔓 解密已成', 'success');
+        } catch (e) {
             setStatus('error', '解密失败');
-            showToast('解密失败: '+e.message, 'err');
+            showToast('解密失败: ' + (e.message || '未知错误'), 'error');
+        } finally {
+            btnDecrypt.disabled = false;
+            btnDecrypt.classList.remove('btn-loading');
+            btnDecrypt.textContent = origText;
         }
     }
 
-    function clearAll(){ inputArea.value=''; outputArea.value=''; updateCharCount(); setStatus('idle','静候墨韵'); }
-    async function copyResult(){ const res=outputArea.value.trim(); if(!res) return; try{ await navigator.clipboard.writeText(res); showToast('已复制'); }catch{ outputArea.select(); document.execCommand('copy'); } }
-    function importFile(){ fileInput.click(); }
-    function exportFile(){ const res=outputArea.value; if(!res.trim()) return; const blob=new Blob([res]); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='密文.txt'; a.click(); }
-    fileInput.addEventListener('change', e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=ev=>{ inputArea.value=ev.target.result; updateCharCount(); }; r.readAsText(f); });
-    function updateCharCount(){ charCount.textContent='字数: '+inputArea.value.length; }
-    function setStatus(type,text){ statusDot.className='status-dot '+type; statusText.textContent=text; }
-    function showToast(msg,type='info'){ toast.textContent=msg; toast.className='toast '+type+' show'; setTimeout(()=>toast.className='toast',2400); }
+    // ==================== 其他操作 ====================
+    function clearAll() {
+        inputArea.value = '';
+        outputArea.value = '';
+        updateCharCount();
+        setStatus('idle', '静候墨韵');
+        timeDisplay.textContent = '';
+    }
 
-    async function apiFetch(path,opt={}){ const res=await fetch(API_BASE+path,{...opt,credentials:'include',headers:{'Content-Type':'application/json',...opt.headers}}); const data=await res.json().catch(()=>({})); if(!res.ok) throw new Error(data.error||'请求失败'); return data; }
+    async function copyResult() {
+        const res = outputArea.value.trim();
+        if (!res) { showToast('无可复制之果', 'warn'); return; }
+        try {
+            await navigator.clipboard.writeText(res);
+            showToast('已复制', 'success');
+        } catch {
+            outputArea.select();
+            document.execCommand('copy');
+            showToast('已复制', 'success');
+        }
+    }
 
+    function importFile() { fileInput.click(); }
+    function exportFile() {
+        const res = outputArea.value;
+        if (!res.trim()) { showToast('输出为空', 'warn'); return; }
+        const blob = new Blob([res], { type: 'text/plain;charset=utf-8' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = '密文.txt';
+        a.click();
+        URL.revokeObjectURL(a.href);
+    }
+    fileInput.addEventListener('change', e => {
+        const f = e.target.files[0];
+        if (!f) return;
+        const r = new FileReader();
+        r.onload = ev => { inputArea.value = ev.target.result; updateCharCount(); };
+        r.readAsText(f);
+    });
+    function updateCharCount() { charCount.textContent = '字数: ' + inputArea.value.length; }
+
+    // ==================== API（带 CSRF） ====================
+    async function refreshCsrf() {
+        try {
+            const r = await fetch(API_BASE + '/api/me', { credentials: 'include' });
+            if (!r.ok) return;
+            const d = await r.json();
+            if (d && d.csrfToken) csrfToken = d.csrfToken;
+        } catch (_) {}
+    }
+
+    async function apiFetch(path, opt = {}) {
+        const method = (opt.method || 'GET').toUpperCase();
+        const isWrite = !['GET', 'HEAD', 'OPTIONS'].includes(method);
+        const headers = Object.assign({ 'Content-Type': 'application/json' }, opt.headers || {});
+        if (isWrite && csrfToken) headers['X-CSRF-Token'] = csrfToken;
+
+        let res = await fetch(API_BASE + path, {
+            ...opt,
+            method,
+            credentials: 'include',
+            headers
+        });
+
+        // CSRF 自动重试
+        if (isWrite && res.status === 403) {
+            const clone = await res.clone().json().catch(() => ({}));
+            if (clone.error && String(clone.error).includes('CSRF')) {
+                await refreshCsrf();
+                headers['X-CSRF-Token'] = csrfToken;
+                res = await fetch(API_BASE + path, {
+                    ...opt,
+                    method,
+                    credentials: 'include',
+                    headers
+                });
+            }
+        }
+
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || '请求失败');
+        return data;
+    }
+
+    // ==================== 登录状态 ====================
     async function checkLoginStatus() {
+        setConnection('checking', '检测中…');
         try {
             const d = await apiFetch('/api/me');
             if (d && d.username) {
                 currentUser = d;
+                csrfToken = d.csrfToken || '';
+                setConnection('online', '已连接');
             } else {
                 currentUser = null;
+                csrfToken = '';
+                setConnection('online', '已连接');
             }
         } catch (e) {
             currentUser = null;
+            csrfToken = '';
+            setConnection('offline', '离线');
         } finally {
             updateLoginUI();
         }
@@ -471,12 +1084,10 @@
             btnLogout.style.display = 'inline-flex';
             userBadge.style.display = 'flex';
             userNameDisplay.textContent = currentUser.username;
-            // 设置角色徽章
             const roleMap = { owner: '宗主', admin: '长老', member: '弟子' };
             const roleName = roleMap[currentUser.role] || '访客';
             userRoleBadge.textContent = roleName;
             userRoleBadge.className = 'role-badge ' + currentUser.role;
-            // 状态光点颜色
             userDot.className = 'dot';
             if (currentUser.role === 'owner') userDot.style.background = '#ff8c7a';
             else if (currentUser.role === 'admin') userDot.style.background = '#f0d078';
@@ -492,59 +1103,210 @@
         updateKeyLevelUI();
     }
 
-    function openLoginModal(){ loginModal.classList.add('active'); }
-    function closeLoginModal(){ loginModal.classList.remove('active'); changePwdArea.style.display='none'; isChangePwdMode=false; }
+    // ==================== 登录模态框 ====================
+    function openLoginModal() { loginModal.classList.add('active'); }
+    function closeLoginModal() {
+        loginModal.classList.remove('active');
+        changePwdArea.style.display = 'none';
+        isChangePwdMode = false;
+        btnLoginSubmit.style.display = 'inline-flex';
+        loginError.textContent = '';
+        pwdError.textContent = '';
+    }
+
     btnLogin.addEventListener('click', openLoginModal);
-    btnLogout.addEventListener('click', async ()=>{ await apiFetch('/api/logout',{method:'POST'}); currentUser=null; updateLoginUI(); closeLoginModal(); });
+    btnLogout.addEventListener('click', async () => {
+        try { await apiFetch('/api/logout', { method: 'POST' }); } catch (_) {}
+        currentUser = null;
+        csrfToken = '';
+        updateLoginUI();
+        closeLoginModal();
+        showToast('已归隐', 'info');
+    });
     btnModalClose.addEventListener('click', closeLoginModal);
-    btnLoginSubmit.addEventListener('click', async ()=>{
-        const u=loginUsername.value.trim(), p=loginPassword.value;
-        if(!u||!p){ loginError.textContent='请输入用户名和密码'; return; }
-        try{ const d=await apiFetch('/api/login',{method:'POST',body:JSON.stringify({username:u,password:p})}); currentUser=d; updateLoginUI(); closeLoginModal(); }catch(e){ loginError.textContent=e.message; }
-    });
-    btnChangePwd.addEventListener('click', ()=>{ isChangePwdMode=!isChangePwdMode; changePwdArea.style.display=isChangePwdMode?'block':'none'; btnLoginSubmit.style.display=isChangePwdMode?'none':'inline-flex'; });
-    btnPwdSubmit.addEventListener('click', async ()=>{
-        const op=oldPassword.value, np=newPassword.value;
-        if(!op||!np){ pwdError.textContent='请填写密码'; return; }
-        if(np.length<6){ pwdError.textContent='新密码至少6位'; return; }
-        try{ await apiFetch('/api/me/password',{method:'PUT',body:JSON.stringify({oldPassword:op,newPassword:np})}); closeLoginModal(); }catch(e){ pwdError.textContent=e.message; }
-    });
-    loginModal.addEventListener('click', e=>{ if(e.target===loginModal) closeLoginModal(); });
+    loginModal.addEventListener('click', e => { if (e.target === loginModal) closeLoginModal(); });
 
-    mermaid.initialize({startOnLoad:false, theme:'default'});
-    const renderer = new marked.Renderer();
-    renderer.code = (code,lang)=>{ if(lang==='mermaid') return `<pre class="mermaid">${code}</pre>`; const h=lang&&hljs.getLanguage(lang)?hljs.highlight(code,{language:lang,ignoreIllegals:true}).value:hljs.highlightAuto(code).value; return `<pre><code class="hljs">${h}</code></pre>`; };
-    marked.use({renderer});
-    function renderMd(){ const raw=mdEditorArea.value; if(!raw.trim()){ mdPreview.innerHTML=''; return; } try{ mdPreview.innerHTML=marked.parse(raw); if(window.katex) renderMathInElement(mdPreview,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false}); mermaid.run({nodes:mdPreview.querySelectorAll('.mermaid')}); }catch(e){} }
-    mdEditorArea.addEventListener('input', ()=>{ clearTimeout(window._mdTimer); window._mdTimer=setTimeout(renderMd,200); });
-    btnMdEditor.addEventListener('click', ()=>mdPanelOverlay.classList.add('active'));
-    btnMdClose.addEventListener('click', ()=>mdPanelOverlay.classList.remove('active'));
-    btnMdImport.addEventListener('click', ()=>{ inputArea.value=mdEditorArea.value; updateCharCount(); mdPanelOverlay.classList.remove('active'); });
-    btnMdEncrypt.addEventListener('click', async ()=>{
-        if(!isKeyLevelAllowed(keyLevelSelect.value)){ showToast('密钥强度需登录','warn'); return; }
-        inputArea.value=mdEditorArea.value; updateCharCount(); mdPanelOverlay.classList.remove('active'); await encrypt();
+    btnLoginSubmit.addEventListener('click', async () => {
+        const u = loginUsername.value.trim();
+        const p = loginPassword.value;
+        if (!u || !p) { loginError.textContent = '请输入用户名和密码'; return; }
+        btnLoginSubmit.disabled = true;
+        try {
+            const d = await apiFetch('/api/login', {
+                method: 'POST',
+                body: JSON.stringify({ username: u, password: p })
+            });
+            currentUser = d;
+            csrfToken = d.csrfToken || '';
+            updateLoginUI();
+            closeLoginModal();
+            showToast('登录成功，欢迎 ' + d.username, 'success');
+        } catch (e) {
+            loginError.textContent = e.message;
+        } finally {
+            btnLoginSubmit.disabled = false;
+        }
     });
 
-    // 特效
+    btnChangePwd.addEventListener('click', () => {
+        isChangePwdMode = !isChangePwdMode;
+        changePwdArea.style.display = isChangePwdMode ? 'block' : 'none';
+        btnLoginSubmit.style.display = isChangePwdMode ? 'none' : 'inline-flex';
+    });
+
+    btnPwdSubmit.addEventListener('click', async () => {
+        const op = oldPassword.value;
+        const np = newPassword.value;
+        if (!op || !np) { pwdError.textContent = '请填写密码'; return; }
+        if (np.length < 6) { pwdError.textContent = '新密码至少6位'; return; }
+        btnPwdSubmit.disabled = true;
+        try {
+            await apiFetch('/api/me/password', {
+                method: 'PUT',
+                body: JSON.stringify({ oldPassword: op, newPassword: np })
+            });
+            closeLoginModal();
+            showToast('密码已更新', 'success');
+        } catch (e) {
+            pwdError.textContent = e.message;
+        } finally {
+            btnPwdSubmit.disabled = false;
+        }
+    });
+
+    // ==================== Mermaid + Markdown（安全） ====================
+    if (typeof mermaid !== 'undefined') {
+        mermaid.initialize({ startOnLoad: false, theme: 'default', securityLevel: 'strict' });
+    }
+
+    if (typeof DOMPurify !== 'undefined') {
+        DOMPurify.addHook('afterSanitizeAttributes', function(node) {
+            if (node.tagName === 'A' && node.getAttribute('target') === '_blank') {
+                node.setAttribute('rel', 'noopener noreferrer');
+            }
+        });
+    }
+
+    function escapeHtml(s) {
+        const d = document.createElement('div');
+        d.textContent = s == null ? '' : String(s);
+        return d.innerHTML;
+    }
+
+    if (typeof marked !== 'undefined') {
+        const renderer = new marked.Renderer();
+        renderer.code = (token, lang) => {
+            let code, language;
+            if (typeof token === 'string') { code = token; language = lang; }
+            else if (token && typeof token === 'object') { code = token.text || ''; language = token.lang || ''; }
+            else { code = ''; language = ''; }
+
+            const escaped = escapeHtml(code);
+            if (language === 'mermaid') return `<pre class="mermaid">${escaped}</pre>`;
+            try {
+                const h = language && hljs.getLanguage(language)
+                    ? hljs.highlight(code, { language, ignoreIllegals: true }).value
+                    : hljs.highlightAuto(code).value;
+                return `<pre><code class="hljs">${h}</code></pre>`;
+            } catch (e) {
+                return `<pre><code>${escaped}</code></pre>`;
+            }
+        };
+        marked.use({ renderer });
+    }
+
+    function safeMarkdown(text) {
+        if (!text) return '';
+        let html = '';
+        try {
+            html = marked.parse(text);
+        } catch (e) {
+            return escapeHtml(text).replace(/\n/g, '<br>');
+        }
+        if (typeof DOMPurify !== 'undefined') {
+            try {
+                return DOMPurify.sanitize(html, { USE_PROFILES: { html: true } });
+            } catch (e) {
+                return escapeHtml(text).replace(/\n/g, '<br>');
+            }
+        }
+        return escapeHtml(text).replace(/\n/g, '<br>');
+    }
+
+    function renderMd() {
+        const raw = mdEditorArea.value;
+        if (!raw.trim()) { mdPreview.innerHTML = ''; return; }
+        mdPreview.innerHTML = safeMarkdown(raw);
+        try {
+            if (window.katex && typeof renderMathInElement === 'function') {
+                renderMathInElement(mdPreview, {
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false }
+                    ],
+                    throwOnError: false
+                });
+            }
+            const mermaidNodes = mdPreview.querySelectorAll('.mermaid');
+            if (mermaidNodes.length > 0 && window.mermaid) {
+                mermaid.run({ nodes: mermaidNodes, suppressErrors: true }).catch(() => {});
+            }
+        } catch (e) {}
+    }
+
+    mdEditorArea.addEventListener('input', () => {
+        clearTimeout(window._mdTimer);
+        window._mdTimer = setTimeout(renderMd, 200);
+    });
+    btnMdEditor.addEventListener('click', () => mdPanelOverlay.classList.add('active'));
+    btnMdClose.addEventListener('click', () => mdPanelOverlay.classList.remove('active'));
+    btnMdImport.addEventListener('click', () => {
+        inputArea.value = mdEditorArea.value;
+        updateCharCount();
+        mdPanelOverlay.classList.remove('active');
+    });
+    btnMdEncrypt.addEventListener('click', async () => {
+        if (!isKeyLevelAllowed(keyLevelSelect.value)) { showToast('密钥强度需登录', 'warn'); return; }
+        inputArea.value = mdEditorArea.value;
+        updateCharCount();
+        mdPanelOverlay.classList.remove('active');
+        await encrypt();
+    });
+
+    // ==================== 特效 ====================
     function createClickFX(x, y) {
         const ring = document.createElement('div');
         ring.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:0;height:0;border-radius:50%;border:2px solid rgba(0,240,255,0.8);transform:translate(-50%,-50%);animation:ringExpand 0.8s ease-out forwards;pointer-events:none;`;
-        fxContainer.appendChild(ring); ring.addEventListener('animationend', ()=>ring.remove());
-        for(let i=0;i<6;i++){
+        fxContainer.appendChild(ring);
+        ring.addEventListener('animationend', () => ring.remove());
+
+        for (let i = 0; i < 6; i++) {
             const particle = document.createElement('div');
-            const angle = Math.random()*Math.PI*2;
-            const dist = 40+Math.random()*60;
+            const angle = Math.random() * Math.PI * 2;
+            const dist = 40 + Math.random() * 60;
             particle.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:${2+Math.random()*3}px;height:${2+Math.random()*3}px;background:${Math.random()>0.5?'#00f0ff':'#ff00aa'};border-radius:50%;transform:translate(-50%,-50%);animation:particleBurst 0.7s ease-out forwards;--dx:${Math.cos(angle)*dist}px;--dy:${Math.sin(angle)*dist}px;`;
-            fxContainer.appendChild(particle); particle.addEventListener('animationend', ()=>particle.remove());
+            fxContainer.appendChild(particle);
+            particle.addEventListener('animationend', () => particle.remove());
         }
     }
     const styleSheet = document.createElement('style');
     styleSheet.textContent = `@keyframes ringExpand{0%{width:0;height:0;opacity:1}100%{width:120px;height:120px;opacity:0}}@keyframes particleBurst{0%{transform:translate(-50%,-50%) scale(1);opacity:1}100%{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(0);opacity:0}}`;
     document.head.appendChild(styleSheet);
     document.addEventListener('click', (e) => createClickFX(e.clientX, e.clientY));
-    setInterval(()=>{ if(fallingInks.children.length<12){ const p=document.createElement('div'); p.className='ink-particle'; p.style.width=(Math.random()*5+2)+'px'; p.style.left=Math.random()*100+'%'; p.style.animationDuration=Math.random()*8+6+'s'; fallingInks.appendChild(p); p.addEventListener('animationend',()=>p.remove()); } }, 900);
 
-    // 事件绑定
+    setInterval(() => {
+        if (fallingInks.children.length < 12) {
+            const p = document.createElement('div');
+            p.className = 'ink-particle';
+            p.style.width = (Math.random() * 5 + 2) + 'px';
+            p.style.left = Math.random() * 100 + '%';
+            p.style.animationDuration = Math.random() * 8 + 6 + 's';
+            fallingInks.appendChild(p);
+            p.addEventListener('animationend', () => p.remove());
+        }
+    }, 900);
+
+    // ==================== 事件绑定 ====================
     btnEncrypt.addEventListener('click', encrypt);
     btnDecrypt.addEventListener('click', decrypt);
     btnClear.addEventListener('click', clearAll);
