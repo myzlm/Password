@@ -9,9 +9,9 @@
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.8/dist/purify.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="hljs-style">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.16.9/katex.min.css">
-    <script src="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
-    <script src="https://cdn.bootcdn.net/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
     <style>
         :root {
@@ -112,12 +112,12 @@
             padding: 28px 30px 24px;
             margin: 20px 0;
             overflow: visible;
-            animation: borderGlow 4s ease-in-out infinite alternate;
+            animation: borderGlow 9s ease-in-out infinite alternate;
         }
         @keyframes borderGlow {
-            0% { box-shadow: 0 0 30px rgba(0,240,255,0.4), 0 0 60px rgba(255,0,170,0.2); }
-            50% { box-shadow: 0 0 40px rgba(0,240,255,0.6), 0 0 80px rgba(255,0,170,0.4); }
-            100% { box-shadow: 0 0 30px rgba(0,240,255,0.4), 0 0 60px rgba(255,0,170,0.2); }
+            0% { box-shadow: 0 0 24px rgba(0,240,255,0.18), 0 0 48px rgba(255,0,170,0.10), 0 8px 50px rgba(0,0,0,0.5); }
+            50% { box-shadow: 0 0 30px rgba(0,240,255,0.28), 0 0 60px rgba(255,0,170,0.16), 0 8px 50px rgba(0,0,0,0.5); }
+            100% { box-shadow: 0 0 24px rgba(0,240,255,0.18), 0 0 48px rgba(255,0,170,0.10), 0 8px 50px rgba(0,0,0,0.5); }
         }
 
         .axis-rod {
@@ -141,11 +141,11 @@
             text-shadow: 0 0 8px rgba(181,52,46,0.8);
             box-shadow: inset 0 0 12px rgba(181,52,46,0.4), 0 0 20px rgba(0,240,255,0.5);
             background: rgba(255,255,255,0.1); backdrop-filter: blur(4px);
-            animation: sealPulse 2s ease-in-out infinite;
+            animation: sealPulse 5s ease-in-out infinite;
         }
         @keyframes sealPulse {
-            0%,100% { box-shadow: inset 0 0 12px rgba(181,52,46,0.4), 0 0 20px rgba(0,240,255,0.5); }
-            50% { box-shadow: inset 0 0 20px rgba(181,52,46,0.7), 0 0 30px rgba(255,0,170,0.6); }
+            0%,100% { box-shadow: inset 0 0 12px rgba(181,52,46,0.4), 0 0 14px rgba(0,240,255,0.25); }
+            50% { box-shadow: inset 0 0 16px rgba(181,52,46,0.55), 0 0 20px rgba(255,0,170,0.3); }
         }
         .seal-stamp.top-right { top:-35px; right:-15px; width:65px; height:65px; font-size:1.1rem; transform:rotate(10deg); }
         .seal-stamp.bottom-left { bottom:-30px; left:-10px; width:60px; height:60px; font-size:0.95rem; transform:rotate(-15deg); }
@@ -165,11 +165,11 @@
             font-size:1.5rem; color:#f5efe0;
             box-shadow: 0 0 15px rgba(0,240,255,0.6);
             border:2px solid var(--gold);
-            animation: iconPulse 3s ease-in-out infinite;
+            animation: iconPulse 6s ease-in-out infinite;
         }
         @keyframes iconPulse {
-            0%,100% { box-shadow: 0 0 15px rgba(0,240,255,0.6); }
-            50% { box-shadow: 0 0 25px rgba(255,0,170,0.7); }
+            0%,100% { box-shadow: 0 0 15px rgba(0,240,255,0.3); }
+            50% { box-shadow: 0 0 20px rgba(255,0,170,0.4); }
         }
         .app-title {
             font-family:var(--font-brush); font-size:2rem; color: var(--ink);
@@ -204,7 +204,7 @@
             border:1px solid rgba(0,240,255,0.5);
             border-radius:25px; padding:6px 14px;
             font-family:var(--font-hand); color:var(--ink);
-            cursor:default;
+            cursor:pointer;
             transition: all 0.3s;
         }
         .user-badge:hover { box-shadow: 0 0 15px rgba(0,240,255,0.4); }
@@ -460,6 +460,43 @@
             font-family:var(--font-mono); font-size:14px; line-height:1.8;
             background:transparent; color:#1e293b; outline:none;
         }
+        /* ===== Markdown 预览排版 ===== */
+        .md-preview-content { font-size:15px; line-height:1.8; color:#1e293b; word-break:break-word; }
+        .md-preview-content h1, .md-preview-content h2, .md-preview-content h3,
+        .md-preview-content h4, .md-preview-content h5, .md-preview-content h6 {
+            font-family:var(--font-body); color:#2c1f14;
+            margin:1.2em 0 0.6em; line-height:1.4;
+        }
+        .md-preview-content h1 { font-size:1.7em; border-bottom:2px solid rgba(181,52,46,0.25); padding-bottom:0.3em; }
+        .md-preview-content h2 { font-size:1.4em; border-bottom:1px solid #eef2f6; padding-bottom:0.25em; }
+        .md-preview-content h3 { font-size:1.2em; }
+        .md-preview-content p { margin:0.6em 0; }
+        .md-preview-content a { color:#2b6cb0; text-decoration:none; }
+        .md-preview-content a:hover { text-decoration:underline; }
+        .md-preview-content ul, .md-preview-content ol { padding-left:1.6em; margin:0.6em 0; }
+        .md-preview-content blockquote {
+            margin:0.8em 0; padding:0.4em 1em;
+            border-left:4px solid rgba(166,124,60,0.6);
+            background:rgba(166,124,60,0.08); border-radius:0 6px 6px 0; color:#5a3e2b;
+        }
+        .md-preview-content code {
+            font-family:var(--font-mono); font-size:0.9em;
+            background:rgba(44,31,20,0.07); padding:0.15em 0.4em; border-radius:4px;
+        }
+        .md-preview-content pre {
+            background:#1e293b; color:#e8eef5; padding:14px 16px;
+            border-radius:8px; overflow-x:auto; margin:0.8em 0;
+        }
+        .md-preview-content pre code { background:none; padding:0; color:inherit; font-size:0.88em; }
+        .md-preview-content table { border-collapse:collapse; margin:0.8em 0; width:100%; }
+        .md-preview-content th, .md-preview-content td {
+            border:1px solid #e2e8f0; padding:6px 12px; text-align:left;
+        }
+        .md-preview-content th { background:#f5f7fa; font-weight:600; }
+        .md-preview-content tr:nth-child(2n) { background:#fafbfc; }
+        .md-preview-content img { max-width:100%; border-radius:6px; }
+        .md-preview-content hr { border:none; border-top:1px dashed #cbd5e1; margin:1.2em 0; }
+        .mermaid { text-align:center; margin:0.8em 0; }
 
         /* ===== Toast 队列 ===== */
         .toast-container {
@@ -523,7 +560,7 @@
             </div>
             <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
                 <div class="login-area">
-                    <span id="userBadge" class="user-badge" style="display:none;">
+                    <span id="userBadge" class="user-badge" style="display:none;" title="点击修改密码">
                         <span class="dot" id="userDot"></span>
                         <span id="userNameDisplay"></span>
                         <span id="userRoleBadge" class="role-badge"></span>
@@ -542,10 +579,10 @@
         <div class="key-select-row">
             <span class="key-select-label">🔑 密钥强度：</span>
             <select id="keyLevel">
-                <option value="none">不用秘钥：极短</option>
-                <option value="low">低级秘钥：短 (AES-128)</option>
-                <option value="mid">🔒 中级秘钥：长 (AES-192)</option>
-                <option value="high">🔒 超级秘钥：超长 (AES-256)</option>
+                <option value="none">不用密钥：极短</option>
+                <option value="low">低级密钥：短 (AES-128)</option>
+                <option value="mid">🔒 中级密钥：长 (AES-192)</option>
+                <option value="high">🔒 超级密钥：超长 (AES-256)</option>
             </select>
             <div class="key-strength-bar" id="keyStrengthBar">
                 <span class="key-strength-seg"></span>
@@ -596,7 +633,7 @@
 <!-- 登录模态框 -->
 <div class="modal-overlay" id="loginModal">
     <div class="modal-dialog">
-        <button id="btnModalClose" style="position:absolute;top:10px;right:14px;background:none;border:none;font-size:1.4rem;cursor:pointer;box-shadow:none;">✕</button>
+        <button id="btnModalClose" style="position:absolute;top:10px;right:14px;background:none;border:none;font-size:1.4rem;cursor:pointer;box-shadow:none;padding:0;">✕</button>
         <h3>🏮 墨韵书阁 · 登录</h3>
         <input type="text" id="loginUsername" placeholder="用户名" autocomplete="username">
         <input type="password" id="loginPassword" placeholder="密码" autocomplete="current-password">
@@ -743,6 +780,8 @@
         '8': "---**", '9': "----*", '0': "-----", '￥': "--**-",
         '\n': "-*--*", '-': "-*---", '_': "*-**-", '~': "-***-"
     };
+    // 映射表原样保留（改动会破坏旧密文兼容性）。空格已有映射；\t 与 \r 不在任何映射层，
+    // 由 processChineseEncrypt 统一转义处理（见下）
 
     const ms_decrypt = {};
     for (const [k, v] of Object.entries(ms_encrypt)) ms_decrypt[v] = k;
@@ -758,7 +797,9 @@
     function compactDecode(str){ const syms=[]; let i=0; while(i<str.length){ const c=str[i]; if(c>='0'&&c<='9'){ const b=[]; while(i<str.length&&str[i]>='0'&&str[i]<='9') b.push(str[i++]); syms.push(['*',parseInt(b.join(''),10)]); } else if(c>='A'&&c<='J'){ const b=[]; while(i<str.length&&str[i]>='A'&&str[i]<='J') b.push(letterToNumber(str[i++])); syms.push(['-',parseInt(b.join(''),10)]); } else throw new Error('非法字符'); } return syms; }
     function symbolsToContinuous(syms){ return syms.map(([s,c])=>s.repeat(c)).join(''); }
     function splitContinuousMorse(cont, map){ const u=[]; let i=0; while(i<cont.length){ let m=null; for(let l=5;l>=1;l--){ if(i+l>cont.length) continue; const sub=cont.substring(i,i+l); if(sub in map){ m=sub; break; } } if(!m) throw new Error('无法分割'); u.push(m); i+=m.length; } return u; }
-    function processChineseEncrypt(t){ const r=[]; for(const c of t){ const cp=c.codePointAt(0); if(cp>127){ if(cp<=0xFFFF) r.push(`￥u${cp.toString(16).padStart(4,'0')}￥`); else r.push(`￥U${cp.toString(16).padStart(8,'0')}￥`); } else r.push(c); } return r.join(''); }
+    // \t 与 \r 不在任何映射层中，若不转义会穿透到 RLE 游程导致无法解密；
+    // 与中文一样统一转成 ￥uXXXX￥ 转义序列（解码端 processChineseDecrypt 原生支持还原）
+    function processChineseEncrypt(t){ const r=[]; for(const c of t){ const cp=c.codePointAt(0); if(cp>127||c==='\t'||c==='\r'){ if(cp<=0xFFFF) r.push(`￥u${cp.toString(16).padStart(4,'0')}￥`); else r.push(`￥U${cp.toString(16).padStart(8,'0')}￥`); } else r.push(c); } return r.join(''); }
     function processChineseDecrypt(t){ return t.replace(/￥([uU][0-9a-fA-F]+)￥/g, (m,tag)=>{ const h=tag.slice(1); try{ return String.fromCodePoint(parseInt(h,16)); }catch{ return tag; } }); }
 
     function encryptLayer5(text){
@@ -897,6 +938,7 @@
             } else {
                 const keyLen = choice === 'low' ? 16 : choice === 'mid' ? 24 : 32;
                 if (keyLen === 24 && !(await checkAES192Support())) {
+                    setStatus('error', '浏览器不支持');
                     showToast('浏览器不支持AES-192', 'error');
                     return;
                 }
@@ -933,13 +975,16 @@
         const start = performance.now();
         try {
             while (data.includes('|')) {
+                // 五层映射的输出字母表是 [0-9A-J]，不含 |——出现 | 必为 AES 包裹层
                 const sepIdx = data.indexOf('|');
                 const left = data.substring(0, sepIdx);
                 const right = data.substring(sepIdx + 1);
                 try {
                     const keyHex = decryptLayer5(left);
                     const keyBytes = hexToBytes(keyHex);
-                    if (![16, 24, 32].includes(keyBytes.length)) break;
+                    if (![16, 24, 32].includes(keyBytes.length)) {
+                        throw new Error('密钥长度异常，密文可能已损坏');
+                    }
                     if ((keyBytes.length === 24 || keyBytes.length === 32) && !currentUser) {
                         showToast('🔒 权限不足，请先登录墨韵书阁', 'warn');
                         outputArea.value = '';
@@ -947,12 +992,17 @@
                         return;
                     }
                     if (keyBytes.length === 24 && !(await checkAES192Support())) {
+                        setStatus('error', '浏览器不支持');
                         showToast('浏览器不支持AES-192解密', 'error');
                         return;
                     }
                     const innerBytes = await aesGcmDecrypt(hexToBytes(right), keyBytes);
                     data = utf8BytesToString(innerBytes);
-                } catch { break; }
+                } catch (e) {
+                    if (e && /AES-192/.test(e.message)) throw e;
+                    // AES 层解析失败（GCM 校验不过 / 格式损坏）：给出明确错误而非静默跳过
+                    throw new Error('密文无法解析——可能已损坏，或不是本工具加密的内容');
+                }
             }
             const plain = decryptLayer5(data);
             outputArea.value = plain;
@@ -997,11 +1047,13 @@
         const res = outputArea.value;
         if (!res.trim()) { showToast('输出为空', 'warn'); return; }
         const blob = new Blob([res], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
+        a.href = url;
         a.download = '密文.txt';
         a.click();
-        URL.revokeObjectURL(a.href);
+        // 立即 revoke 会导致部分浏览器（尤其 Firefox）下载中断，延迟释放
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
     }
     fileInput.addEventListener('change', e => {
         const f = e.target.files[0];
@@ -1028,12 +1080,11 @@
         const headers = Object.assign({ 'Content-Type': 'application/json' }, opt.headers || {});
         if (isWrite && csrfToken) headers['X-CSRF-Token'] = csrfToken;
 
-        let res = await fetch(API_BASE + path, {
-            ...opt,
-            method,
-            credentials: 'include',
-            headers
-        });
+        // GET 禁用缓存，避免登录态查询拿到过期响应
+        const fetchOpt = { ...opt, method, credentials: 'include', headers };
+        if (!isWrite) fetchOpt.cache = 'no-store';
+
+        let res = await fetch(API_BASE + path, fetchOpt);
 
         // CSRF 自动重试
         if (isWrite && res.status === 403) {
@@ -1041,17 +1092,16 @@
             if (clone.error && String(clone.error).includes('CSRF')) {
                 await refreshCsrf();
                 headers['X-CSRF-Token'] = csrfToken;
-                res = await fetch(API_BASE + path, {
-                    ...opt,
-                    method,
-                    credentials: 'include',
-                    headers
-                });
+                res = await fetch(API_BASE + path, fetchOpt);
             }
         }
 
         const data = await res.json().catch(() => ({}));
-        if (!res.ok) throw new Error(data.error || '请求失败');
+        if (!res.ok) {
+            const err = new Error(data.error || '请求失败（' + res.status + '）');
+            err.status = res.status;
+            throw err;
+        }
         return data;
     }
 
@@ -1072,7 +1122,9 @@
         } catch (e) {
             currentUser = null;
             csrfToken = '';
-            setConnection('offline', '离线');
+            // 401（未登录）说明服务器可达，不能算"离线"
+            if (e && e.status === 401) setConnection('online', '已连接 · 未登录');
+            else setConnection('offline', '离线');
         } finally {
             updateLoginUI();
         }
@@ -1104,7 +1156,17 @@
     }
 
     // ==================== 登录模态框 ====================
-    function openLoginModal() { loginModal.classList.add('active'); }
+    function openLoginModal() {
+        loginModal.classList.add('active');
+        loginUsername.focus();
+    }
+    // 登录后用户徽章可点击 → 打开修改密码（否则改密入口在登录按钮隐藏后永远无法触达）
+    function openChangePwdModal() {
+        isChangePwdMode = true;
+        changePwdArea.style.display = 'block';
+        btnLoginSubmit.style.display = 'none';
+        loginModal.classList.add('active');
+    }
     function closeLoginModal() {
         loginModal.classList.remove('active');
         changePwdArea.style.display = 'none';
@@ -1115,6 +1177,7 @@
     }
 
     btnLogin.addEventListener('click', openLoginModal);
+    userBadge.addEventListener('click', openChangePwdModal);
     btnLogout.addEventListener('click', async () => {
         try { await apiFetch('/api/logout', { method: 'POST' }); } catch (_) {}
         currentUser = null;
@@ -1125,6 +1188,14 @@
     });
     btnModalClose.addEventListener('click', closeLoginModal);
     loginModal.addEventListener('click', e => { if (e.target === loginModal) closeLoginModal(); });
+
+    // 登录/改密表单支持回车提交
+    [loginUsername, loginPassword].forEach(el => el.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && btnLoginSubmit.style.display !== 'none') btnLoginSubmit.click();
+    }));
+    [oldPassword, newPassword].forEach(el => el.addEventListener('keydown', e => {
+        if (e.key === 'Enter') btnPwdSubmit.click();
+    }));
 
     btnLoginSubmit.addEventListener('click', async () => {
         const u = loginUsername.value.trim();
@@ -1254,12 +1325,21 @@
         } catch (e) {}
     }
 
+    // 草稿自动保存：刷新/关闭后不丢
+    try { mdEditorArea.value = localStorage.getItem('myun_md_draft') || ''; } catch (_) {}
     mdEditorArea.addEventListener('input', () => {
+        try { localStorage.setItem('myun_md_draft', mdEditorArea.value); } catch (_) {}
         clearTimeout(window._mdTimer);
         window._mdTimer = setTimeout(renderMd, 200);
     });
-    btnMdEditor.addEventListener('click', () => mdPanelOverlay.classList.add('active'));
+    btnMdEditor.addEventListener('click', () => { renderMd(); mdPanelOverlay.classList.add('active'); });
     btnMdClose.addEventListener('click', () => mdPanelOverlay.classList.remove('active'));
+    // Esc 关闭面板/模态框
+    document.addEventListener('keydown', e => {
+        if (e.key !== 'Escape') return;
+        if (mdPanelOverlay.classList.contains('active')) mdPanelOverlay.classList.remove('active');
+        else if (loginModal.classList.contains('active')) closeLoginModal();
+    });
     btnMdImport.addEventListener('click', () => {
         inputArea.value = mdEditorArea.value;
         updateCharCount();
@@ -1294,7 +1374,9 @@
     document.head.appendChild(styleSheet);
     document.addEventListener('click', (e) => createClickFX(e.clientX, e.clientY));
 
+    // 墨滴雨：后台标签页暂停生成，省资源
     setInterval(() => {
+        if (document.hidden) return;
         if (fallingInks.children.length < 12) {
             const p = document.createElement('div');
             p.className = 'ink-particle';
